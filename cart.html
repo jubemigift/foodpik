@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart - FoodPick Warri</title>
+    <meta name="description" content="Review your order and checkout for food delivery in Warri, Delta State">
+    
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                 <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link">Restaurants</a>
+                <a href="/track.html" class="nav-link">Track Order</a>
+                <a href="/account.html" class="nav-link">Account</a>
+                <a href="/cart.html" class="nav-link cart-link active">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="cart-layout">
+        <div class="container">
+            <!-- Cart Header -->
+            <div class="page-header">
+                <h1>Your Cart</h1>
+                <p>Review your items and proceed to checkout</p>
+            </div>
+
+            <div class="cart-content" id="cartContent">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Modal -->
+    <div class="modal" id="addressModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Delivery Address</h3>
+                <button class="modal-close" onclick="UI.closeModal('addressModal')">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addressForm">
+                    <div class="form-group">
+                        <label for="addressLabel">Address Label</label>
+                        <input type="text" id="addressLabel" placeholder="e.g., Home, Office" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressArea">Area</label>
+                        <select id="addressArea" required>
+                            <option value="">Select area</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressStreet">Street Address</label>
+                        <input type="text" id="addressStreet" placeholder="House number, street name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressDirections">Additional Directions</label>
+                        <textarea id="addressDirections" placeholder="Landmarks, special instructions..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="UI.closeModal('addressModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="cartPage.saveAddress()">Save Address</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promo Code Modal -->
+    <div class="modal" id="promoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Apply Promo Code</h3>
+                <button class="modal-close" onclick="UI.closeModal('promoModal')">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="promoCode">Enter Promo Code</label>
+                    <div class="promo-input">
+                        <input type="text" id="promoCode" placeholder="Enter code" style="text-transform: uppercase;">
+                        <button class="btn btn-primary" onclick="cartPage.applyPromoCode()">Apply</button>
+                    </div>
+                </div>
+                <div class="available-promos">
+                    <h4>Available Offers</h4>
+                    <div class="promo-list" id="promoList">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class CartPage {
+            constructor() {
+                this.addresses = Store.get('addresses') || [];
+                this.appliedPromo = null;
+                this.selectedAddress = null;
+                this.deliverySchedule = 'now';
+                this.paymentMethod = 'cash';
+                this.init();
+            }
+
+            init() {
+                this.populateAddressModal();
+                this.populatePromoList();
+                this.renderCart();
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Listen for cart updates
+                window.addEventListener('storage:update', (e) => {
+                    if (e.detail.key === 'cart') {
+                        this.renderCart();
+                    }
+                });
+
+                // Form submissions
+                document.getElementById('addressForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveAddress();
+                });
+            }
+
+            renderCart() {
+                const cartItems = Cart.getItems();
+                const cartContent = document.getElementById('cartContent');
+
+                if (cartItems.length === 0) {
+                    cartContent.innerHTML = this.renderEmptyCart();
+                    return;
+                }
+
+                const restaurantGroups = this.groupItemsByRestaurant(cartItems);
+                cartContent.innerHTML = this.renderCartWithItems(restaurantGroups);
+                this.attachCartEventListeners();
+            }
+
+            renderEmptyCart() {
+                return `
+                    <div class="empty-cart-page">
+                        <div class="empty-icon">
+                            <i class="ri-shopping-cart-line"></i>
+                        </div>
+                        <h2>Your cart is empty</h2>
+                        <p>Looks like you haven't added any items to your cart yet</p>
+                        <a href="/restaurants.html" class="btn btn-primary">Browse Restaurants</a>
+                    </div>
+                `;
+            }
+
+            renderCartWithItems(restaurantGroups) {
+                const subtotal = Cart.getSubtotal();
+                const deliveryFee = this.calculateDeliveryFee();
+                const promoDiscount = this.calculatePromoDiscount(subtotal);
+                const total = subtotal + deliveryFee - promoDiscount;
+
+                return `
+                    <div class="cart-grid">
+                        <!-- Cart Items -->
+                        <div class="cart-items">
+                            <div class="cart-section">
+                                <div class="section-header">
+                                    <h2>Order Items</h2>
+                                    <button class="btn btn-ghost" onclick="cartPage.clearCart()">
+                                        <i class="ri-delete-bin-line"></i>
+                                        Clear Cart
+                                    </button>
+                                </div>
+                                
+                                ${Object.entries(restaurantGroups).map(([restaurantId, items]) => {
+                                    const restaurant = Store.get('restaurants').find(r => r.id === restaurantId);
+                                    return `
+                                        <div class="restaurant-group">
+                                            <div class="restaurant-header">
+                                                <h3>${restaurant.name}</h3>
+                                                <span class="restaurant-area">${restaurant.area}</span>
+                                            </div>
+                                            <div class="cart-items-list">
+                                                ${items.map(item => this.renderCartItem(item)).join('')}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <!-- Delivery Details -->
+                            <div class="cart-section">
+                                <h2>Delivery Details</h2>
+                                
+                                <!-- Address Selection -->
+                                <div class="delivery-subsection">
+                                    <h3>Delivery Address</h3>
+                                    <div class="address-selection">
+                                        ${this.renderAddressSelection()}
+                                        <button class="btn btn-outline" onclick="UI.showModal('addressModal')">
+                                            <i class="ri-add-line"></i>
+                                            Add New Address
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery Schedule -->
+                                <div class="delivery-subsection">
+                                    <h3>Delivery Time</h3>
+                                    <div class="schedule-options">
+                                        <label class="schedule-option">
+                                            <input type="radio" name="schedule" value="now" checked onchange="cartPage.updateSchedule(this.value)">
+                                            <span>ASAP (30-45 mins)</span>
+                                        </label>
+                                        <label class="schedule-option">
+                                            <input type="radio" name="schedule" value="later" onchange="cartPage.updateSchedule(this.value)">
+                                            <span>Schedule for later</span>
+                                        </label>
+                                    </div>
+                                    <div class="schedule-time" id="scheduleTime" style="display: none;">
+                                        <select id="scheduleHour">
+                                            ${this.generateTimeOptions()}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery Notes -->
+                                <div class="delivery-subsection">
+                                    <h3>Delivery Notes (Optional)</h3>
+                                    <textarea id="deliveryNotes" placeholder="Special instructions for delivery..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="cart-section">
+                                <h2>Payment Method</h2>
+                                <div class="payment-methods">
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment" value="cash" checked onchange="cartPage.updatePaymentMethod(this.value)">
+                                        <div class="payment-details">
+                                            <i class="ri-money-naira-circle-line"></i>
+                                            <div>
+                                                <strong>Cash on Delivery</strong>
+                                                <span>Pay with cash when your order arrives</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment" value="transfer" onchange="cartPage.updatePaymentMethod(this.value)">
+                                        <div class="payment-details">
+                                            <i class="ri-bank-line"></i>
+                                            <div>
+                                                <strong>Bank Transfer</strong>
+                                                <span>Transfer to our account details</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                    <label class="payment-option disabled">
+                                        <input type="radio" name="payment" value="card" disabled>
+                                        <div class="payment-details">
+                                            <i class="ri-bank-card-line"></i>
+                                            <div>
+                                                <strong>Card Payment</strong>
+                                                <span>Coming soon</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="order-summary">
+                            <div class="summary-content">
+                                <h2>Order Summary</h2>
+                                
+                                <div class="summary-line">
+                                    <span>Subtotal</span>
+                                    <span>₦${subtotal.toLocaleString()}</span>
+                                </div>
+                                
+                                <div class="summary-line">
+                                    <span>Delivery Fee</span>
+                                    <span>₦${deliveryFee.toLocaleString()}</span>
+                                </div>
+
+                                ${promoDiscount > 0 ? `
+                                    <div class="summary-line discount">
+                                        <span>Promo Discount (${this.appliedPromo.code})</span>
+                                        <span>-₦${promoDiscount.toLocaleString()}</span>
+                                    </div>
+                                ` : ''}
+
+                                <div class="promo-section">
+                                    ${this.appliedPromo ? `
+                                        <div class="applied-promo">
+                                            <i class="ri-coupon-line"></i>
+                                            <span>${this.appliedPromo.code} applied</span>
+                                            <button onclick="cartPage.removePromo()" class="remove-promo">
+                                                <i class="ri-close-line"></i>
+                                            </button>
+                                        </div>
+                                    ` : `
+                                        <button class="promo-btn" onclick="UI.showModal('promoModal')">
+                                            <i class="ri-coupon-line"></i>
+                                            Add Promo Code
+                                        </button>
+                                    `}
+                                </div>
+
+                                <div class="summary-total">
+                                    <span>Total</span>
+                                    <span>₦${total.toLocaleString()}</span>
+                                </div>
+
+                                <button class="btn btn-primary btn-large" onclick="cartPage.placeOrder()" 
+                                        ${!this.selectedAddress ? 'disabled' : ''}>
+                                    Place Order
+                                </button>
+
+                                ${!this.selectedAddress ? 
+                                    '<p class="checkout-note">Please select a delivery address</p>' : 
+                                    '<p class="checkout-note">By placing this order, you agree to our terms and conditions</p>'
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderCartItem(item) {
+                const itemTotal = item.price * item.quantity;
+                let addOnsText = '';
+                
+                if (item.addOns && Object.keys(item.addOns).length > 0) {
+                    addOnsText = Object.entries(item.addOns).map(([category, options]) => 
+                        options.map(option => option.name).join(', ')
+                    ).join('; ');
+                }
+
+                return `
+                    <div class="cart-item" data-item-timestamp="${item.timestamp}">
+                        <img src="${item.image}" alt="${item.name}" class="item-image">
+                        <div class="item-details">
+                            <h4 class="item-name">${item.name}</h4>
+                            ${addOnsText ? `<p class="item-addons">${addOnsText}</p>` : ''}
+                            ${item.specialInstructions ? `<p class="item-instructions">${item.specialInstructions}</p>` : ''}
+                            <div class="item-price">₦${item.price.toLocaleString()} each</div>
+                        </div>
+                        <div class="item-controls">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="cartPage.updateItemQuantity('${item.timestamp}', -1)">-</button>
+                                <span class="quantity">${item.quantity}</span>
+                                <button class="quantity-btn" onclick="cartPage.updateItemQuantity('${item.timestamp}', 1)">+</button>
+                            </div>
+                            <div class="item-total">₦${itemTotal.toLocaleString()}</div>
+                            <button class="remove-btn" onclick="cartPage.removeItem('${item.timestamp}')">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderAddressSelection() {
+                if (this.addresses.length === 0) {
+                    return '<p class="no-addresses">No saved addresses. Add one to continue.</p>';
+                }
+
+                return `
+                    <div class="address-list">
+                        ${this.addresses.map(address => `
+                            <label class="address-option">
+                                <input type="radio" name="address" value="${address.id}" 
+                                       onchange="cartPage.selectAddress('${address.id}')">
+                                <div class="address-details">
+                                    <strong>${address.label}</strong>
+                                    <span>${address.street}, ${address.area}</span>
+                                    ${address.directions ? `<small>${address.directions}</small>` : ''}
+                                </div>
+                            </label>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            groupItemsByRestaurant(items) {
+                return items.reduce((groups, item) => {
+                    const restaurantId = item.restaurantId;
+                    if (!groups[restaurantId]) {
+                        groups[restaurantId] = [];
+                    }
+                    groups[restaurantId].push(item);
+                    return groups;
+                }, {});
+            }
+
+            attachCartEventListeners() {
+                // This method is called after rendering cart items to attach event listeners
+                // Most event listeners are handled inline with onclick attributes for simplicity
+            }
+
+            updateItemQuantity(timestamp, change) {
+                Cart.updateItemQuantity(timestamp, change);
+            }
+
+            removeItem(timestamp) {
+                UI.showConfirm('Remove this item from your cart?', () => {
+                    Cart.removeItem(timestamp);
+                    UI.showToast('Item removed from cart', 'success');
+                });
+            }
+
+            clearCart() {
+                UI.showConfirm('Remove all items from your cart?', () => {
+                    Cart.clear();
+                    UI.showToast('Cart cleared', 'success');
+                });
+            }
+
+            populateAddressModal() {
+                const areaSelect = document.getElementById('addressArea');
+                areaSelect.innerHTML = '<option value="">Select area</option>' +
+                    WARRI_AREAS.map(area => `<option value="${area}">${area}</option>`).join('');
+            }
+
+            populatePromoList() {
+                const promoList = document.getElementById('promoList');
+                const coupons = Store.get('coupons');
+                
+                promoList.innerHTML = coupons.map(coupon => `
+                    <div class="promo-item" onclick="cartPage.selectPromo('${coupon.code}')">
+                        <div class="promo-info">
+                            <strong>${coupon.code}</strong>
+                            <span>${coupon.description}</span>
+                        </div>
+                        <div class="promo-discount">${coupon.discount}% OFF</div>
+                    </div>
+                `).join('');
+            }
+
+            selectPromo(code) {
+                document.getElementById('promoCode').value = code;
+                this.applyPromoCode();
+            }
+
+            applyPromoCode() {
+                const code = document.getElementById('promoCode').value.trim().toUpperCase();
+                const coupons = Store.get('coupons');
+                const coupon = coupons.find(c => c.code === code);
+                
+                if (!coupon) {
+                    UI.showToast('Invalid promo code', 'error');
+                    return;
+                }
+
+                const subtotal = Cart.getSubtotal();
+                if (subtotal < coupon.minSpend) {
+                    UI.showToast(`Minimum order of ₦${coupon.minSpend.toLocaleString()} required for this promo`, 'error');
+                    return;
+                }
+
+                // Check if coupon is expired (simplified check)
+                const now = new Date();
+                const expiry = new Date(coupon.expiry);
+                if (now > expiry) {
+                    UI.showToast('This promo code has expired', 'error');
+                    return;
+                }
+
+                this.appliedPromo = coupon;
+                UI.closeModal('promoModal');
+                UI.showToast(`Promo code ${code} applied!`, 'success');
+                this.renderCart();
+            }
+
+            removePromo() {
+                this.appliedPromo = null;
+                UI.showToast('Promo code removed', 'info');
+                this.renderCart();
+            }
+
+            calculateDeliveryFee() {
+                if (!this.selectedAddress) return 0;
+                
+                const address = this.addresses.find(a => a.id === this.selectedAddress);
+                if (!address) return 0;
+
+                // Mock delivery fee calculation based on area
+                const deliveryTiers = {
+                    'Effurun': 300,
+                    'Enerhen': 400,
+                    'PTI Road': 500,
+                    'Jakpa Road': 600,
+                    'Airport Road': 700,
+                    'Ekpan': 800,
+                    'Ugbuwangue': 900,
+                    'Ugborikoko': 1000
+                };
+
+                return deliveryTiers[address.area] || 500;
+            }
+
+            calculatePromoDiscount(subtotal) {
+                if (!this.appliedPromo) return 0;
+                return Math.floor(subtotal * (this.appliedPromo.discount / 100));
+            }
+
+            selectAddress(addressId) {
+                this.selectedAddress = addressId;
+                this.renderCart(); // Re-render to update delivery fee and enable checkout
+            }
+
+            updateSchedule(schedule) {
+                this.deliverySchedule = schedule;
+                const scheduleTime = document.getElementById('scheduleTime');
+                if (schedule === 'later') {
+                    scheduleTime.style.display = 'block';
+                } else {
+                    scheduleTime.style.display = 'none';
+                }
+            }
+
+            updatePaymentMethod(method) {
+                this.paymentMethod = method;
+            }
+
+            generateTimeOptions() {
+                const options = [];
+                const now = new Date();
+                const currentHour = now.getHours();
+                
+                for (let hour = currentHour + 1; hour < 24; hour++) {
+                    for (let minute of [0, 30]) {
+                        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                        options.push(`<option value="${time}">${time}</option>`);
+                    }
+                }
+                
+                return options.join('');
+            }
+
+            saveAddress() {
+                const form = document.getElementById('addressForm');
+                const formData = new FormData(form);
+                
+                const address = {
+                    id: Date.now().toString(),
+                    label: document.getElementById('addressLabel').value,
+                    area: document.getElementById('addressArea').value,
+                    street: document.getElementById('addressStreet').value,
+                    directions: document.getElementById('addressDirections').value,
+                    timestamp: Date.now()
+                };
+
+                // Validate required fields
+                if (!address.label || !address.area || !address.street) {
+                    UI.showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                this.addresses.push(address);
+                Store.set('addresses', this.addresses);
+                
+                UI.closeModal('addressModal');
+                UI.showToast('Address saved successfully', 'success');
+                
+                // Clear form
+                form.reset();
+                
+                // Re-render cart to show new address option
+                this.renderCart();
+            }
+
+            placeOrder() {
+                if (!this.selectedAddress) {
+                    UI.showToast('Please select a delivery address', 'error');
+                    return;
+                }
+
+                const cartItems = Cart.getItems();
+                if (cartItems.length === 0) {
+                    UI.showToast('Your cart is empty', 'error');
+                    return;
+                }
+
+                // Create order
+                const order = {
+                    id: this.generateOrderId(),
+                    items: cartItems,
+                    address: this.addresses.find(a => a.id === this.selectedAddress),
+                    schedule: this.deliverySchedule,
+                    scheduleTime: this.deliverySchedule === 'later' ? document.getElementById('scheduleHour')?.value : null,
+                    paymentMethod: this.paymentMethod,
+                    deliveryNotes: document.getElementById('deliveryNotes')?.value || '',
+                    promo: this.appliedPromo,
+                    subtotal: Cart.getSubtotal(),
+                    deliveryFee: this.calculateDeliveryFee(),
+                    discount: this.calculatePromoDiscount(Cart.getSubtotal()),
+                    total: Cart.getSubtotal() + this.calculateDeliveryFee() - this.calculatePromoDiscount(Cart.getSubtotal()),
+                    status: 'received',
+                    timestamp: Date.now(),
+                    estimatedDelivery: this.calculateEstimatedDelivery()
+                };
+
+                // Save order
+                const orders = Store.get('orders') || [];
+                orders.push(order);
+                Store.set('orders', orders);
+
+                // Clear cart
+                Cart.clear();
+
+                // Show success message
+                UI.showToast('Order placed successfully!', 'success');
+
+                // Redirect to tracking page
+                setTimeout(() => {
+                    window.location.href = `/track.html?orderId=${order.id}`;
+                }, 1500);
+            }
+
+            generateOrderId() {
+                const prefix = 'FPW';
+                const timestamp = Date.now().toString().slice(-6);
+                const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                return `${prefix}${timestamp}${random}`;
+            }
+
+            calculateEstimatedDelivery() {
+                const now = new Date();
+                const deliveryMinutes = 35 + Math.floor(Math.random() * 20); // 35-55 minutes
+                return new Date(now.getTime() + deliveryMinutes * 60 * 1000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let cartPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            cartPage = new CartPage();
+        });
+    </script>
+</body>
+</html>

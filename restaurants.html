@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurants in Warri - FoodPick Warri</title>
+    <meta name="description" content="Browse restaurants in Warri. Find the best food in Effurun, Enerhen, PTI Road, Jakpa Road and other areas in Warri, Delta State.">
+    
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link active">Restaurants</a>
+                <a href="/track.html" class="nav-link">Track Order</a>
+                <a href="/account.html" class="nav-link">Account</a>
+                <a href="/cart.html" class="nav-link cart-link">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="restaurants-layout">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar" id="filtersSidebar">
+            <div class="filters-header">
+                <h3>Filters</h3>
+                <button class="filters-close" id="filtersClose">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+
+            <div class="filter-group">
+                <h4>Areas in Warri</h4>
+                <div class="filter-options" id="areaFilters">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h4>Delivery Time</h4>
+                <div class="range-slider">
+                    <input type="range" id="deliveryRange" min="0" max="60" value="60">
+                    <div class="range-labels">
+                        <span>0 min</span>
+                        <span id="deliveryTime">60 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h4>Price Range</h4>
+                <div class="filter-options">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="budget" name="priceRange">
+                        <span>₦ Budget-friendly</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="moderate" name="priceRange">
+                        <span>₦₦ Moderate</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="premium" name="priceRange">
+                        <span>₦₦₦ Premium</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <h4>Rating</h4>
+                <div class="filter-options">
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="4" name="rating">
+                        <span>4+ ⭐</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="4.5" name="rating">
+                        <span>4.5+ ⭐</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <button class="btn btn-outline" id="clearFilters">Clear All</button>
+                <button class="btn btn-primary" id="applyFilters">Apply Filters</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="restaurants-main">
+            <!-- Search & Controls -->
+            <div class="restaurants-controls">
+                <div class="search-section">
+                    <div class="search-box">
+                        <i class="ri-search-line"></i>
+                        <input type="text" placeholder="Search restaurants or dishes..." id="restaurantSearch">
+                    </div>
+                    <button class="filters-toggle" id="filtersToggle">
+                        <i class="ri-equalizer-line"></i>
+                        Filters
+                    </button>
+                </div>
+
+                <div class="controls-row">
+                    <select class="sort-select" id="sortSelect">
+                        <option value="relevance">Sort by Relevance</option>
+                        <option value="rating">Highest Rated</option>
+                        <option value="delivery">Fastest Delivery</option>
+                        <option value="price">Price: Low to High</option>
+                    </select>
+                    
+                    <select class="cuisine-select" id="cuisineSelect">
+                        <option value="">All Cuisines</option>
+                        <option value="nigerian">Nigerian</option>
+                        <option value="fast-food">Fast Food</option>
+                        <option value="chinese">Chinese</option>
+                        <option value="continental">Continental</option>
+                        <option value="pastries">Pastries</option>
+                    </select>
+                </div>
+
+                <div class="results-info" id="resultsInfo">
+                    <!-- Will show number of results -->
+                </div>
+            </div>
+
+            <!-- Restaurant Grid -->
+            <div class="restaurant-grid" id="restaurantsGrid">
+                <!-- Will be populated by JavaScript -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Filters Overlay -->
+    <div class="filters-overlay" id="filtersOverlay"></div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class RestaurantsPage {
+            constructor() {
+                this.currentPage = 1;
+                this.itemsPerPage = 12;
+                this.allRestaurants = Store.get('restaurants');
+                this.filteredRestaurants = [...this.allRestaurants];
+                this.filters = {
+                    search: '',
+                    areas: [],
+                    deliveryTime: 60,
+                    priceRange: [],
+                    rating: [],
+                    cuisine: '',
+                    sort: 'relevance'
+                };
+                
+                this.init();
+            }
+
+            init() {
+                this.setupFilters();
+                this.setupEventListeners();
+                this.parseURLParams();
+                this.renderRestaurants();
+            }
+
+            setupFilters() {
+                // Populate area filters
+                const areaFilters = document.getElementById('areaFilters');
+                const areas = WARRI_AREAS;
+                
+                areaFilters.innerHTML = areas.map(area => `
+                    <label class="filter-checkbox">
+                        <input type="checkbox" value="${area}" name="areas">
+                        <span>${area}</span>
+                    </label>
+                `).join('');
+            }
+
+            setupEventListeners() {
+                // Search
+                document.getElementById('restaurantSearch').addEventListener('input', 
+                    debounce((e) => {
+                        this.filters.search = e.target.value.toLowerCase();
+                        this.applyFilters();
+                    }, 300)
+                );
+
+                // Sort
+                document.getElementById('sortSelect').addEventListener('change', (e) => {
+                    this.filters.sort = e.target.value;
+                    this.applyFilters();
+                });
+
+                // Cuisine filter
+                document.getElementById('cuisineSelect').addEventListener('change', (e) => {
+                    this.filters.cuisine = e.target.value;
+                    this.applyFilters();
+                });
+
+                // Delivery time slider
+                document.getElementById('deliveryRange').addEventListener('input', (e) => {
+                    this.filters.deliveryTime = parseInt(e.target.value);
+                    document.getElementById('deliveryTime').textContent = `${e.target.value} min`;
+                });
+
+                // Filter checkboxes
+                document.addEventListener('change', (e) => {
+                    if (e.target.name === 'areas') {
+                        this.updateArrayFilter('areas', e.target.value, e.target.checked);
+                    } else if (e.target.name === 'priceRange') {
+                        this.updateArrayFilter('priceRange', e.target.value, e.target.checked);
+                    } else if (e.target.name === 'rating') {
+                        this.updateArrayFilter('rating', parseFloat(e.target.value), e.target.checked);
+                    }
+                });
+
+                // Filter controls
+                document.getElementById('applyFilters').addEventListener('click', () => {
+                    this.applyFilters();
+                    this.closeMobileFilters();
+                });
+
+                document.getElementById('clearFilters').addEventListener('click', () => {
+                    this.clearFilters();
+                });
+
+                // Mobile filters
+                document.getElementById('filtersToggle').addEventListener('click', () => {
+                    this.openMobileFilters();
+                });
+
+                document.getElementById('filtersClose').addEventListener('click', () => {
+                    this.closeMobileFilters();
+                });
+
+                document.getElementById('filtersOverlay').addEventListener('click', () => {
+                    this.closeMobileFilters();
+                });
+            }
+
+            parseURLParams() {
+                const params = new URLSearchParams(window.location.search);
+                
+                if (params.has('search')) {
+                    this.filters.search = params.get('search').toLowerCase();
+                    document.getElementById('restaurantSearch').value = params.get('search');
+                }
+                
+                if (params.has('cuisine')) {
+                    this.filters.cuisine = params.get('cuisine');
+                    document.getElementById('cuisineSelect').value = params.get('cuisine');
+                }
+            }
+
+            updateArrayFilter(filterName, value, checked) {
+                if (checked) {
+                    if (!this.filters[filterName].includes(value)) {
+                        this.filters[filterName].push(value);
+                    }
+                } else {
+                    this.filters[filterName] = this.filters[filterName].filter(v => v !== value);
+                }
+            }
+
+            applyFilters() {
+                this.filteredRestaurants = this.allRestaurants.filter(restaurant => {
+                    // Search filter
+                    if (this.filters.search && 
+                        !restaurant.name.toLowerCase().includes(this.filters.search) &&
+                        !restaurant.cuisines.some(c => c.toLowerCase().includes(this.filters.search))) {
+                        return false;
+                    }
+
+                    // Area filter
+                    if (this.filters.areas.length > 0 && !this.filters.areas.includes(restaurant.area)) {
+                        return false;
+                    }
+
+                    // Delivery time filter
+                    if (restaurant.deliveryTime > this.filters.deliveryTime) {
+                        return false;
+                    }
+
+                    // Price range filter
+                    if (this.filters.priceRange.length > 0 && !this.filters.priceRange.includes(restaurant.priceRange)) {
+                        return false;
+                    }
+
+                    // Rating filter
+                    if (this.filters.rating.length > 0 && 
+                        !this.filters.rating.some(minRating => restaurant.rating >= minRating)) {
+                        return false;
+                    }
+
+                    // Cuisine filter
+                    if (this.filters.cuisine && 
+                        !restaurant.cuisines.some(c => c.toLowerCase() === this.filters.cuisine)) {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                // Apply sorting
+                this.sortRestaurants();
+                
+                this.currentPage = 1;
+                this.renderRestaurants();
+                this.updateURL();
+            }
+
+            sortRestaurants() {
+                switch (this.filters.sort) {
+                    case 'rating':
+                        this.filteredRestaurants.sort((a, b) => b.rating - a.rating);
+                        break;
+                    case 'delivery':
+                        this.filteredRestaurants.sort((a, b) => a.deliveryTime - b.deliveryTime);
+                        break;
+                    case 'price':
+                        const priceOrder = { 'budget': 1, 'moderate': 2, 'premium': 3 };
+                        this.filteredRestaurants.sort((a, b) => priceOrder[a.priceRange] - priceOrder[b.priceRange]);
+                        break;
+                    default: // relevance - keep original order
+                        break;
+                }
+            }
+
+            clearFilters() {
+                this.filters = {
+                    search: '',
+                    areas: [],
+                    deliveryTime: 60,
+                    priceRange: [],
+                    rating: [],
+                    cuisine: '',
+                    sort: 'relevance'
+                };
+
+                // Reset form controls
+                document.getElementById('restaurantSearch').value = '';
+                document.getElementById('sortSelect').value = 'relevance';
+                document.getElementById('cuisineSelect').value = '';
+                document.getElementById('deliveryRange').value = 60;
+                document.getElementById('deliveryTime').textContent = '60 min';
+                
+                // Uncheck all checkboxes
+                document.querySelectorAll('.filter-checkbox input').forEach(cb => cb.checked = false);
+                
+                this.applyFilters();
+            }
+
+            renderRestaurants() {
+                const start = (this.currentPage - 1) * this.itemsPerPage;
+                const end = start + this.itemsPerPage;
+                const pageRestaurants = this.filteredRestaurants.slice(start, end);
+
+                const grid = document.getElementById('restaurantsGrid');
+                
+                if (pageRestaurants.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="ri-restaurant-line"></i>
+                            <h3>No restaurants found</h3>
+                            <p>Try adjusting your filters or search terms</p>
+                            <button class="btn btn-primary" onclick="restaurantsPage.clearFilters()">Clear Filters</button>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML = pageRestaurants.map(restaurant => 
+                        UI.renderRestaurantCard(restaurant)
+                    ).join('');
+                }
+
+                this.updateResultsInfo();
+                this.renderPagination();
+            }
+
+            updateResultsInfo() {
+                const info = document.getElementById('resultsInfo');
+                const total = this.filteredRestaurants.length;
+                const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+                const end = Math.min(this.currentPage * this.itemsPerPage, total);
+                
+                if (total === 0) {
+                    info.textContent = 'No restaurants found';
+                } else {
+                    info.textContent = `Showing ${start}-${end} of ${total} restaurants`;
+                }
+            }
+
+            renderPagination() {
+                const totalPages = Math.ceil(this.filteredRestaurants.length / this.itemsPerPage);
+                const pagination = document.getElementById('pagination');
+                
+                if (totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                let paginationHTML = '';
+                
+                // Previous button
+                if (this.currentPage > 1) {
+                    paginationHTML += `<button class="pagination-btn" onclick="restaurantsPage.goToPage(${this.currentPage - 1})">Previous</button>`;
+                }
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === this.currentPage) {
+                        paginationHTML += `<button class="pagination-btn active">${i}</button>`;
+                    } else if (i === 1 || i === totalPages || Math.abs(i - this.currentPage) <= 2) {
+                        paginationHTML += `<button class="pagination-btn" onclick="restaurantsPage.goToPage(${i})">${i}</button>`;
+                    } else if (i === this.currentPage - 3 || i === this.currentPage + 3) {
+                        paginationHTML += `<span class="pagination-dots">...</span>`;
+                    }
+                }
+
+                // Next button
+                if (this.currentPage < totalPages) {
+                    paginationHTML += `<button class="pagination-btn" onclick="restaurantsPage.goToPage(${this.currentPage + 1})">Next</button>`;
+                }
+
+                pagination.innerHTML = paginationHTML;
+            }
+
+            goToPage(page) {
+                this.currentPage = page;
+                this.renderRestaurants();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            openMobileFilters() {
+                document.getElementById('filtersSidebar').classList.add('active');
+                document.getElementById('filtersOverlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            closeMobileFilters() {
+                document.getElementById('filtersSidebar').classList.remove('active');
+                document.getElementById('filtersOverlay').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            updateURL() {
+                const params = new URLSearchParams();
+                
+                if (this.filters.search) params.set('search', this.filters.search);
+                if (this.filters.cuisine) params.set('cuisine', this.filters.cuisine);
+                if (this.filters.areas.length > 0) params.set('areas', this.filters.areas.join(','));
+                
+                const url = params.toString() ? `${window.location.pathname}?${params}` : window.location.pathname;
+                window.history.replaceState(null, '', url);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let restaurantsPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            restaurantsPage = new RestaurantsPage();
+        });
+    </script>
+</body>
+</html>

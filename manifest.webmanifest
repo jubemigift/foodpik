@@ -1,0 +1,109 @@
+{
+  "name": "FoodPick Warri",
+  "short_name": "FoodPick",
+  "description": "Order food online from the best restaurants in Warri, Delta State. Fast delivery to your doorstep.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0a1a",
+  "theme_color": "#4B0082",
+  "orientation": "portrait-primary",
+  "categories": ["food", "shopping"],
+  "lang": "en-NG",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4IiByeD0iMTIiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIxMiIgeT0iMTIiIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MThweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgNS41IDEzLjUpIiBjbGFzcz0ic3QwIj7wn42944C8PC90ZXh0Pgo8L3N2Zz4KPC9zdmc+",
+      "sizes": "48x48",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNzIiIGhlaWdodD0iNzIiIHZpZXdCb3g9IjAgMCA3MiA3MiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjcyIiBoZWlnaHQ9IjcyIiByeD0iMTgiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIxOCIgeT0iMTgiIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MjdweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgOCAyMC4yNSkiIGNsYXNzPSJzdDAiPvCfjb3jgLw8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+      "sizes": "72x72",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjQiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MzZweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMTAuNSAyNykiIGNsYXNzPSJzdDAiPvCfjb3jgLw8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+      "sizes": "96x96",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTQ0IiBoZWlnaHQ9IjE0NCIgdmlld0JveD0iMCAwIDE0NCAxNDQiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNDQiIGhlaWdodD0iMTQ0IiByeD0iMzYiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIzNiIgeT0iMzYiIHdpZHRoPSI3MiIgaGVpZ2h0PSI3MiIgdmlld0JveD0iMCAwIDcyIDcyIiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6NTRweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMTUuNzUgNDAuNSkiIGNsYXNzPSJzdDAiPvCfjb3jgLw8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+      "sizes": "144x144",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iNDgiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDk2IDk2IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6NzJweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMjEgNTQpIiBjbGFzcz0ic3QwIj7wn42944C8PC90ZXh0Pgo8L3N2Zz4KPC9zdmc+",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTI4IiBmaWxsPSIjNEIwMDgyIi8+CjxzdmcgeD0iMTI4IiB5PSIxMjgiIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiB2aWV3Qm94PSIwIDAgMjU2IDI1NiIgZmlsbD0ibm9uZSI+CjxzdHlsZT4uc3Qwe2ZvbnQtZmFtaWx5OidBcmlhbC1Cb2xkTVQnLCAnQXJpYWwnO2ZvbnQtd2VpZ2h0OmJvbGQ7Zm9udC1zaXplOjE5MnB4O2ZpbGw6I0ZGRkZGRjt9PC9zdHlsZT4KPHR5ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgNTYgMTQ0KSIgY2xhc3M9InN0MCI+8J+NveOAvDwvdGV4dD4KPC9zdmc+Cjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjMGYwYTFhIi8+CjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjI4OCIgaGVpZ2h0PSI1MzYiIHJ4PSIxNiIgZmlsbD0iIzE4MTAyNCIvPgo8dGV4dCB4PSIxNjAiIHk9IjEwMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+Rm9vZFBpY2sgV2FycmkgPC90ZXh0Pgo8dGV4dCB4PSIxNjAiIHk9IjEzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjYzljN2QxIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5PcmRlciBmb29kIG9ubGluZSBmcm9tIHRoZSBiZXN0IHJlc3RhdXJhbnRzPC90ZXh0Pgo8L3N2Zz4=",
+      "sizes": "320x568",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4MCIgaGVpZ2h0PSI4MDAiIHZpZXdCb3g9IjAgMCAxMjgwIDgwMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjEyODAiIGhlaWdodD0iODAwIiBmaWxsPSIjMGYwYTFhIi8+CjxyZWN0IHg9IjY0IiB5PSI2NCIgd2lkdGg9IjExNTIiIGhlaWdodD0iNjcyIiByeD0iMTYiIGZpbGw9IiMxODEwMjQiLz4KPHR5ZXh0IHg9IjY0MCIgeT0iMjAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNDgiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Gb29kUGljayBXYXJyaSBEYXNoYm9hcmQ8L3RleHQ+Cjx0ZXh0IHg9IjY0MCIgeT0iMjUwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZpbGw9IiNjOWM3ZDEiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1hbmFnZSByZXN0YXVyYW50cywgbWVudXMsIG9yZGVycyBhbmQgbW9yZTwvdGV4dD4KPC9zdmc+",
+      "sizes": "1280x800",
+      "type": "image/svg+xml",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Restaurants",
+      "short_name": "Restaurants",
+      "description": "Browse all restaurants in Warri",
+      "url": "/restaurants.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjQiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MzZweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMTAuNSAyNykiIGNsYXNzPSJzdDAiPvCfj6A8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Track Order",
+      "short_name": "Track",
+      "description": "Track your food delivery",
+      "url": "/track.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjQiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MzZweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMTAuNSAyNykiIGNsYXNzPSJzdDAiPvCfmpo8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "My Cart",
+      "short_name": "Cart",
+      "description": "View your shopping cart",
+      "url": "/cart.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMjQiIGZpbGw9IiM0QjAwODIiLz4KPHN2ZyB4PSIyNCIgeT0iMjQiIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4IiBmaWxsPSJub25lIj4KPHN0eWxlPi5zdDB7Zm9udC1mYW1pbHk6J0FyaWFsLUJvbGRNVCcsICdBcmlhbCc7Zm9udC13ZWlnaHQ6Ym9sZDtmb250LXNpemU6MzZweDtmaWxsOiNGRkZGRkY7fTwvc3R5bGU+Cjx0ZXh0IHRyYW5zZm9ybT0ibWF0cml4KDEgMCAwIDEgMTAuNSAyNykiIGNsYXNzPSJzdDAiPvCfm5I8L3RleHQ+Cjwvc3ZnPgo8L3N2Zz4=",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "scope": "/",
+  "id": "foodpick-warri",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
+  "capture_links": "existing-client-navigate"
+}

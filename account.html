@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - FoodPick Warri</title>
+    <meta name="description" content="Manage your account, addresses, and order history with FoodPick Warri">
+    
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                 <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link">Restaurants</a>
+                <a href="/track.html" class="nav-link">Track Order</a>
+                <a href="/account.html" class="nav-link active">Account</a>
+                <a href="/cart.html" class="nav-link cart-link">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="account-layout">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>My Account</h1>
+                <p>Manage your profile, addresses, and order history</p>
+            </div>
+
+            <!-- Account Content -->
+            <div class="account-content" id="accountContent">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class AccountPage {
+            constructor() {
+                this.currentTab = 'login';
+                this.user = Store.get('currentUser');
+                this.addresses = Store.get('addresses') || [];
+                this.orders = Store.get('orders') || [];
+                this.init();
+            }
+
+            init() {
+                this.determineInitialTab();
+                this.renderAccount();
+                this.setupEventListeners();
+            }
+
+            determineInitialTab() {
+                if (this.user) {
+                    this.currentTab = 'profile';
+                } else {
+                    this.currentTab = 'login';
+                }
+            }
+
+            setupEventListeners() {
+                // Listen for storage updates
+                window.addEventListener('storage:update', (e) => {
+                    if (e.detail.key === 'currentUser') {
+                        this.user = Store.get('currentUser');
+                        this.renderAccount();
+                    }
+                });
+            }
+
+            renderAccount() {
+                const accountContent = document.getElementById('accountContent');
+                
+                if (this.user) {
+                    accountContent.innerHTML = this.renderAuthenticatedUser();
+                } else {
+                    accountContent.innerHTML = this.renderGuestUser();
+                }
+                
+                this.attachEventListeners();
+            }
+
+            renderGuestUser() {
+                return `
+                    <div class="account-tabs">
+                        <button class="tab-btn ${this.currentTab === 'login' ? 'active' : ''}" 
+                                onclick="accountPage.switchTab('login')">Login</button>
+                        <button class="tab-btn ${this.currentTab === 'register' ? 'active' : ''}" 
+                                onclick="accountPage.switchTab('register')">Register</button>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Login Tab -->
+                        <div class="tab-pane ${this.currentTab === 'login' ? 'active' : ''}" id="loginTab">
+                            <div class="auth-form">
+                                <h2>Welcome Back</h2>
+                                <p>Login to your FoodPick account</p>
+                                
+                                <form id="loginForm" class="form">
+                                    <div class="form-group">
+                                        <label for="loginEmail">Email Address</label>
+                                        <input type="email" id="loginEmail" required 
+                                               placeholder="Enter your email address">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="loginPassword">Password</label>
+                                        <input type="password" id="loginPassword" required 
+                                               placeholder="Enter your password">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="rememberMe">
+                                            <span>Remember me</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-large">Login</button>
+                                </form>
+                                
+                                <div class="auth-links">
+                                    <a href="#forgot">Forgot your password?</a>
+                                    <p>Don't have an account? 
+                                       <a href="#" onclick="accountPage.switchTab('register')">Sign up</a>
+                                    </p>
+                                </div>
+
+                                <!-- Demo Login -->
+                                <div class="demo-section">
+                                    <hr>
+                                    <p class="demo-note">Demo Mode: Use demo credentials</p>
+                                    <button class="btn btn-outline" onclick="accountPage.demoLogin()">
+                                        Demo Login
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Register Tab -->
+                        <div class="tab-pane ${this.currentTab === 'register' ? 'active' : ''}" id="registerTab">
+                            <div class="auth-form">
+                                <h2>Create Account</h2>
+                                <p>Join FoodPick Warri for faster ordering</p>
+                                
+                                <form id="registerForm" class="form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="firstName">First Name</label>
+                                            <input type="text" id="firstName" required 
+                                                   placeholder="First name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lastName">Last Name</label>
+                                            <input type="text" id="lastName" required 
+                                                   placeholder="Last name">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="registerEmail">Email Address</label>
+                                        <input type="email" id="registerEmail" required 
+                                               placeholder="Enter your email address">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="registerPhone">Phone Number</label>
+                                        <input type="tel" id="registerPhone" required 
+                                               placeholder="+234XXXXXXXXXX">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="defaultArea">Default Area</label>
+                                        <select id="defaultArea" required>
+                                            <option value="">Select your area</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="registerPassword">Password</label>
+                                        <input type="password" id="registerPassword" required 
+                                               placeholder="Choose a strong password" minlength="6">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="confirmPassword">Confirm Password</label>
+                                        <input type="password" id="confirmPassword" required 
+                                               placeholder="Confirm your password">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" id="agreeTerms" required>
+                                            <span>I agree to the <a href="#terms">Terms of Service</a> and 
+                                                  <a href="#privacy">Privacy Policy</a></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-large">Create Account</button>
+                                </form>
+                                
+                                <div class="auth-links">
+                                    <p>Already have an account? 
+                                       <a href="#" onclick="accountPage.switchTab('login')">Login</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderAuthenticatedUser() {
+                return `
+                    <div class="account-tabs">
+                        <button class="tab-btn ${this.currentTab === 'profile' ? 'active' : ''}" 
+                                onclick="accountPage.switchTab('profile')">Profile</button>
+                        <button class="tab-btn ${this.currentTab === 'addresses' ? 'active' : ''}" 
+                                onclick="accountPage.switchTab('addresses')">Addresses</button>
+                        <button class="tab-btn ${this.currentTab === 'orders' ? 'active' : ''}" 
+                                onclick="accountPage.switchTab('orders')">Order History</button>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- Profile Tab -->
+                        <div class="tab-pane ${this.currentTab === 'profile' ? 'active' : ''}" id="profileTab">
+                            ${this.renderProfileTab()}
+                        </div>
+
+                        <!-- Addresses Tab -->
+                        <div class="tab-pane ${this.currentTab === 'addresses' ? 'active' : ''}" id="addressesTab">
+                            ${this.renderAddressesTab()}
+                        </div>
+
+                        <!-- Orders Tab -->
+                        <div class="tab-pane ${this.currentTab === 'orders' ? 'active' : ''}" id="ordersTab">
+                            ${this.renderOrdersTab()}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderProfileTab() {
+                return `
+                    <div class="profile-section">
+                        <div class="section-header">
+                            <h2>Profile Information</h2>
+                            <button class="btn btn-outline" onclick="accountPage.logout()">
+                                <i class="ri-logout-box-line"></i>
+                                Logout
+                            </button>
+                        </div>
+                        
+                        <form id="profileForm" class="form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profileFirstName">First Name</label>
+                                    <input type="text" id="profileFirstName" value="${this.user.firstName}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="profileLastName">Last Name</label>
+                                    <input type="text" id="profileLastName" value="${this.user.lastName}" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profileEmail">Email Address</label>
+                                <input type="email" id="profileEmail" value="${this.user.email}" required readonly>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profilePhone">Phone Number</label>
+                                <input type="tel" id="profilePhone" value="${this.user.phone}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="profileDefaultArea">Default Area</label>
+                                <select id="profileDefaultArea" required>
+                                    <option value="">Select your area</option>
+                                    ${WARRI_AREAS.map(area => 
+                                        `<option value="${area}" ${area === this.user.defaultArea ? 'selected' : ''}>${area}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </form>
+
+                        <div class="profile-stats">
+                            <h3>Account Statistics</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-number">${this.orders.length}</div>
+                                    <div class="stat-label">Total Orders</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">${this.addresses.length}</div>
+                                    <div class="stat-label">Saved Addresses</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">₦${this.calculateTotalSpent().toLocaleString()}</div>
+                                    <div class="stat-label">Total Spent</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-number">${this.calculateFavoriteRestaurant()}</div>
+                                    <div class="stat-label">Favorite Area</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderAddressesTab() {
+                return `
+                    <div class="addresses-section">
+                        <div class="section-header">
+                            <h2>Delivery Addresses</h2>
+                            <button class="btn btn-primary" onclick="accountPage.showAddAddressModal()">
+                                <i class="ri-add-line"></i>
+                                Add New Address
+                            </button>
+                        </div>
+                        
+                        <div class="addresses-list">
+                            ${this.addresses.length === 0 ? `
+                                <div class="empty-state">
+                                    <i class="ri-map-pin-line"></i>
+                                    <h3>No saved addresses</h3>
+                                    <p>Add your delivery addresses for faster checkout</p>
+                                    <button class="btn btn-primary" onclick="accountPage.showAddAddressModal()">
+                                        Add First Address
+                                    </button>
+                                </div>
+                            ` : this.addresses.map(address => `
+                                <div class="address-card">
+                                    <div class="address-info">
+                                        <h4>${address.label}</h4>
+                                        <p>${address.street}, ${address.area}</p>
+                                        ${address.directions ? `<small>${address.directions}</small>` : ''}
+                                    </div>
+                                    <div class="address-actions">
+                                        <button class="btn btn-ghost" onclick="accountPage.editAddress('${address.id}')">
+                                            <i class="ri-edit-line"></i>
+                                        </button>
+                                        <button class="btn btn-ghost text-danger" onclick="accountPage.deleteAddress('${address.id}')">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderOrdersTab() {
+                const userOrders = this.orders.sort((a, b) => b.timestamp - a.timestamp);
+                
+                return `
+                    <div class="orders-section">
+                        <div class="section-header">
+                            <h2>Order History</h2>
+                        </div>
+                        
+                        <div class="orders-list">
+                            ${userOrders.length === 0 ? `
+                                <div class="empty-state">
+                                    <i class="ri-shopping-bag-line"></i>
+                                    <h3>No orders yet</h3>
+                                    <p>Your order history will appear here after you place your first order</p>
+                                    <a href="/restaurants.html" class="btn btn-primary">Browse Restaurants</a>
+                                </div>
+                            ` : userOrders.map(order => `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div class="order-info">
+                                            <h4>Order #${order.id}</h4>
+                                            <p>${this.formatOrderDate(order.timestamp)}</p>
+                                        </div>
+                                        <div class="order-status">
+                                            <span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="order-details">
+                                        <div class="order-items">
+                                            ${order.items.slice(0, 3).map(item => `
+                                                <span class="order-item">${item.name} (${item.quantity})</span>
+                                            `).join('')}
+                                            ${order.items.length > 3 ? `<span class="more-items">+${order.items.length - 3} more</span>` : ''}
+                                        </div>
+                                        <div class="order-total">₦${order.total.toLocaleString()}</div>
+                                    </div>
+                                    <div class="order-actions">
+                                        <a href="/track.html?orderId=${order.id}" class="btn btn-outline">
+                                            <i class="ri-truck-line"></i>
+                                            Track Order
+                                        </a>
+                                        <button class="btn btn-primary" onclick="accountPage.reorder('${order.id}')">
+                                            <i class="ri-refresh-line"></i>
+                                            Reorder
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            attachEventListeners() {
+                // Login form
+                const loginForm = document.getElementById('loginForm');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleLogin();
+                    });
+                }
+
+                // Register form
+                const registerForm = document.getElementById('registerForm');
+                if (registerForm) {
+                    registerForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleRegister();
+                    });
+                    
+                    // Populate areas dropdown
+                    const defaultAreaSelect = document.getElementById('defaultArea');
+                    if (defaultAreaSelect) {
+                        defaultAreaSelect.innerHTML = '<option value="">Select your area</option>' +
+                            WARRI_AREAS.map(area => `<option value="${area}">${area}</option>`).join('');
+                    }
+                }
+
+                // Profile form
+                const profileForm = document.getElementById('profileForm');
+                if (profileForm) {
+                    profileForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.updateProfile();
+                    });
+                }
+
+                // Password confirmation validation
+                const confirmPassword = document.getElementById('confirmPassword');
+                if (confirmPassword) {
+                    confirmPassword.addEventListener('input', this.validatePasswordConfirm);
+                }
+            }
+
+            switchTab(tab) {
+                this.currentTab = tab;
+                this.renderAccount();
+            }
+
+            handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                // Mock authentication
+                if (email && password) {
+                    const user = {
+                        id: Date.now().toString(),
+                        email: email,
+                        firstName: 'Demo',
+                        lastName: 'User',
+                        phone: '+234XXXXXXXXXX',
+                        defaultArea: 'Effurun',
+                        loginTime: Date.now()
+                    };
+
+                    Store.set('currentUser', user);
+                    this.user = user;
+                    UI.showToast('Login successful!', 'success');
+                    this.renderAccount();
+                } else {
+                    UI.showToast('Please fill in all fields', 'error');
+                }
+            }
+
+            demoLogin() {
+                const user = {
+                    id: 'demo-user',
+                    email: 'demo@foodpickwarri.com',
+                    firstName: 'Demo',
+                    lastName: 'User',
+                    phone: '+2348012345678',
+                    defaultArea: 'Effurun',
+                    loginTime: Date.now()
+                };
+
+                Store.set('currentUser', user);
+                this.user = user;
+                UI.showToast('Demo login successful!', 'success');
+                this.renderAccount();
+            }
+
+            handleRegister() {
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('registerEmail').value;
+                const phone = document.getElementById('registerPhone').value;
+                const defaultArea = document.getElementById('defaultArea').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validation
+                if (password !== confirmPassword) {
+                    UI.showToast('Passwords do not match', 'error');
+                    return;
+                }
+
+                if (!document.getElementById('agreeTerms').checked) {
+                    UI.showToast('Please agree to the terms and conditions', 'error');
+                    return;
+                }
+
+                // Create user
+                const user = {
+                    id: Date.now().toString(),
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    defaultArea,
+                    registrationTime: Date.now()
+                };
+
+                Store.set('currentUser', user);
+                this.user = user;
+                UI.showToast('Account created successfully!', 'success');
+                this.renderAccount();
+            }
+
+            updateProfile() {
+                const updatedUser = {
+                    ...this.user,
+                    firstName: document.getElementById('profileFirstName').value,
+                    lastName: document.getElementById('profileLastName').value,
+                    phone: document.getElementById('profilePhone').value,
+                    defaultArea: document.getElementById('profileDefaultArea').value
+                };
+
+                Store.set('currentUser', updatedUser);
+                this.user = updatedUser;
+                UI.showToast('Profile updated successfully!', 'success');
+            }
+
+            logout() {
+                UI.showConfirm('Are you sure you want to logout?', () => {
+                    Store.remove('currentUser');
+                    this.user = null;
+                    UI.showToast('Logged out successfully', 'info');
+                    this.renderAccount();
+                });
+            }
+
+            showAddAddressModal() {
+                // This would open a modal similar to the one in cart.html
+                // For simplicity, using a prompt here
+                const label = prompt('Address label (e.g., Home, Office):');
+                if (!label) return;
+
+                const area = prompt(`Area (${WARRI_AREAS.join(', ')}):`);
+                if (!area || !WARRI_AREAS.includes(area)) {
+                    UI.showToast('Please select a valid area', 'error');
+                    return;
+                }
+
+                const street = prompt('Street address:');
+                if (!street) return;
+
+                const directions = prompt('Additional directions (optional):') || '';
+
+                const address = {
+                    id: Date.now().toString(),
+                    label,
+                    area,
+                    street,
+                    directions,
+                    timestamp: Date.now()
+                };
+
+                this.addresses.push(address);
+                Store.set('addresses', this.addresses);
+                UI.showToast('Address added successfully!', 'success');
+                this.renderAccount();
+            }
+
+            editAddress(addressId) {
+                const address = this.addresses.find(a => a.id === addressId);
+                if (!address) return;
+
+                const label = prompt('Address label:', address.label);
+                if (label) address.label = label;
+
+                const area = prompt('Area:', address.area);
+                if (area && WARRI_AREAS.includes(area)) address.area = area;
+
+                const street = prompt('Street address:', address.street);
+                if (street) address.street = street;
+
+                const directions = prompt('Additional directions:', address.directions || '');
+                address.directions = directions;
+
+                Store.set('addresses', this.addresses);
+                UI.showToast('Address updated successfully!', 'success');
+                this.renderAccount();
+            }
+
+            deleteAddress(addressId) {
+                UI.showConfirm('Delete this address?', () => {
+                    this.addresses = this.addresses.filter(a => a.id !== addressId);
+                    Store.set('addresses', this.addresses);
+                    UI.showToast('Address deleted successfully!', 'success');
+                    this.renderAccount();
+                });
+            }
+
+            reorder(orderId) {
+                const order = this.orders.find(o => o.id === orderId);
+                if (!order) return;
+
+                // Add order items to cart
+                order.items.forEach(item => {
+                    Cart.addItem(item);
+                });
+
+                UI.showToast('Items added to cart!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/cart.html';
+                }, 1000);
+            }
+
+            validatePasswordConfirm() {
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    document.getElementById('confirmPassword').setCustomValidity('Passwords do not match');
+                } else {
+                    document.getElementById('confirmPassword').setCustomValidity('');
+                }
+            }
+
+            calculateTotalSpent() {
+                return this.orders.reduce((total, order) => total + order.total, 0);
+            }
+
+            calculateFavoriteRestaurant() {
+                if (this.orders.length === 0) return 'None';
+                
+                const areaCounts = {};
+                this.orders.forEach(order => {
+                    if (order.address && order.address.area) {
+                        areaCounts[order.address.area] = (areaCounts[order.address.area] || 0) + 1;
+                    }
+                });
+
+                return Object.keys(areaCounts).reduce((a, b) => 
+                    areaCounts[a] > areaCounts[b] ? a : b
+                ) || 'None';
+            }
+
+            getStatusText(status) {
+                const texts = {
+                    received: 'Order Received',
+                    confirmed: 'Confirmed',
+                    preparing: 'Preparing',
+                    ready: 'Ready',
+                    picked: 'Picked Up',
+                    on_way: 'On the Way',
+                    delivered: 'Delivered'
+                };
+                return texts[status] || 'Processing';
+            }
+
+            formatOrderDate(timestamp) {
+                const date = new Date(timestamp);
+                return date.toLocaleDateString('en-NG', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let accountPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            accountPage = new AccountPage();
+        });
+    </script>
+</body>
+</html>

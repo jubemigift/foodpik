@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodPick Warri - Order Food Online | Fast Delivery in Warri</title>
+    <meta name="description" content="Order delicious food from the best restaurants in Warri. Fast delivery to Effurun, Enerhen, PTI Road, Jakpa Road and all areas in Warri, Delta State.">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="FoodPick Warri - Order Food Online">
+    <meta property="og:description" content="Fast food delivery in Warri, Delta State">
+    <meta property="og:type" content="website">
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link">Restaurants</a>
+                <a href="/track.html" class="nav-link">Track Order</a>
+                <a href="/account.html" class="nav-link">Account</a>
+                <a href="/cart.html" class="nav-link cart-link">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Order food in Warri—fast delivery</h1>
+                <p class="hero-subtitle">Discover the best restaurants and get your favorite meals delivered to your doorstep in Warri, Delta State</p>
+                
+                <div class="hero-search">
+                    <div class="search-box">
+                        <i class="ri-search-line"></i>
+                        <input type="text" placeholder="Search for restaurants or dishes..." id="heroSearch">
+                        <button class="search-btn">Find Food</button>
+                    </div>
+                </div>
+                
+                <div class="quick-filters">
+                    <div class="filter-chip" data-cuisine="rice">Jollof Rice</div>
+                    <div class="filter-chip" data-cuisine="shawarma">Shawarma</div>
+                    <div class="filter-chip" data-cuisine="pizza">Pizza</div>
+                    <div class="filter-chip" data-cuisine="soup">Banga Soup</div>
+                    <div class="filter-chip" data-cuisine="grills">Grilled Fish</div>
+                </div>
+                
+                <div class="hero-actions">
+                    <a href="/restaurants.html" class="btn btn-primary">Find Restaurants</a>
+                    <a href="/track.html" class="btn btn-outline">Track Order</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Restaurants -->
+    <section class="featured">
+        <div class="container">
+            <h2 class="section-title">Featured Restaurants in Warri</h2>
+            <div class="restaurant-grid" id="featuredRestaurants">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <div class="text-center">
+                <a href="/restaurants.html" class="btn btn-outline">View All Restaurants</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How FoodPick Works</h2>
+            <div class="steps-grid">
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="ri-restaurant-line"></i>
+                    </div>
+                    <h3>Browse Restaurants</h3>
+                    <p>Choose from the best restaurants in Effurun, Enerhen, PTI Road, and all areas in Warri</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="ri-shopping-cart-line"></i>
+                    </div>
+                    <h3>Add to Cart</h3>
+                    <p>Select your favorite dishes, customize your order, and add them to your cart</p>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="ri-truck-line"></i>
+                    </div>
+                    <h3>Fast Delivery</h3>
+                    <p>Enjoy fast, reliable delivery to your location anywhere in Warri within 30-45 minutes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>FoodPick Warri</h4>
+                    <p>Your favorite food delivery service in Warri, Delta State</p>
+                    <div class="footer-address">
+                        <i class="ri-map-pin-line"></i>
+                        <span>Serving all areas in Warri, Delta State</span>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <a href="/restaurants.html">Restaurants</a>
+                    <a href="/track.html">Track Order</a>
+                    <a href="/account.html">My Account</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <a href="#faq">FAQ</a>
+                    <a href="#support">Support</a>
+                    <a href="#terms">Terms of Service</a>
+                    <a href="#privacy">Privacy Policy</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>📞 +234 XXX XXX XXXX</p>
+                    <p>📧 support@foodpickwarri.com</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FoodPick Warri. All rights reserved.</p>
+                <div class="footer-controls">
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle">
+                        <span>Dark Mode</span>
+                    </label>
+                    <button class="demo-mode" id="demoMode">Demo Mode</button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        // Page specific initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load featured restaurants
+            const featuredContainer = document.getElementById('featuredRestaurants');
+            const restaurants = Store.get('restaurants').slice(0, 6);
+            
+            featuredContainer.innerHTML = restaurants.map(restaurant => 
+                UI.renderRestaurantCard(restaurant)
+            ).join('');
+
+            // Hero search functionality
+            document.getElementById('heroSearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value.trim();
+                    if (query) {
+                        window.location.href = `/restaurants.html?search=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+
+            // Quick filter chips
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    const cuisine = this.dataset.cuisine;
+                    window.location.href = `/restaurants.html?cuisine=${cuisine}`;
+                });
+            });
+
+            // Search button
+            document.querySelector('.search-btn').addEventListener('click', function() {
+                const query = document.getElementById('heroSearch').value.trim();
+                if (query) {
+                    window.location.href = `/restaurants.html?search=${encodeURIComponent(query)}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

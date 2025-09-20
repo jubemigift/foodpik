@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant - FoodPick Warri</title>
+    <meta name="description" content="View menu and order food for delivery in Warri, Delta State">
+    
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link">Restaurants</a>
+                <a href="/track.html" class="nav-link">Track Order</a>
+                <a href="/account.html" class="nav-link">Account</a>
+                <a href="/cart.html" class="nav-link cart-link">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="restaurant-layout">
+        <!-- Restaurant Header -->
+        <section class="restaurant-header" id="restaurantHeader">
+            <!-- Will be populated by JavaScript -->
+        </section>
+
+        <!-- Restaurant Content -->
+        <div class="restaurant-content">
+            <aside class="restaurant-sidebar">
+                <!-- Menu Categories -->
+                <div class="menu-categories" id="menuCategories">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Mini Cart (Desktop) -->
+                <div class="mini-cart" id="miniCart">
+                    <h3>Your Order</h3>
+                    <div class="mini-cart-items" id="miniCartItems">
+                        <div class="empty-cart">
+                            <i class="ri-shopping-cart-line"></i>
+                            <p>Your cart is empty</p>
+                        </div>
+                    </div>
+                    <div class="mini-cart-footer" id="miniCartFooter" style="display: none;">
+                        <div class="mini-cart-total" id="miniCartTotal"></div>
+                        <a href="/cart.html" class="btn btn-primary">Go to Cart</a>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="restaurant-main">
+                <!-- Restaurant Tabs -->
+                <div class="restaurant-tabs">
+                    <button class="tab-btn active" data-tab="menu">Menu</button>
+                    <button class="tab-btn" data-tab="info">Info</button>
+                    <button class="tab-btn" data-tab="reviews">Reviews</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content">
+                    <!-- Menu Tab -->
+                    <div class="tab-pane active" id="menuTab">
+                        <div class="menu-content" id="menuContent">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Info Tab -->
+                    <div class="tab-pane" id="infoTab">
+                        <div class="restaurant-info" id="restaurantInfo">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane" id="reviewsTab">
+                        <div class="reviews-content" id="reviewsContent">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Mobile Cart Drawer -->
+    <div class="mobile-cart-drawer" id="mobileCartDrawer">
+        <div class="drawer-header">
+            <h3>Your Order</h3>
+            <button class="drawer-close" id="drawerClose">
+                <i class="ri-close-line"></i>
+            </button>
+        </div>
+        <div class="drawer-content" id="mobileCartItems">
+            <!-- Will be populated by JavaScript -->
+        </div>
+        <div class="drawer-footer" id="mobileCartFooter">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Mobile Cart Button -->
+    <div class="mobile-cart-btn" id="mobileCartBtn" style="display: none;">
+        <button class="cart-toggle">
+            <i class="ri-shopping-cart-line"></i>
+            <span id="mobileCartTotal"></span>
+        </button>
+    </div>
+
+    <!-- Add to Cart Modal -->
+    <div class="modal" id="addToCartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalItemName"></h3>
+                <button class="modal-close" onclick="UI.closeModal('addToCartModal')">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="item-image" id="modalItemImage"></div>
+                <div class="item-details">
+                    <p class="item-description" id="modalItemDescription"></p>
+                    <div class="item-price" id="modalItemPrice"></div>
+                </div>
+                
+                <!-- Add-ons -->
+                <div class="add-ons" id="modalAddOns">
+                    <!-- Will be populated dynamically -->
+                </div>
+
+                <!-- Quantity -->
+                <div class="quantity-section">
+                    <label>Quantity</label>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="adjustModalQuantity(-1)">-</button>
+                        <span class="quantity-display" id="modalQuantity">1</span>
+                        <button class="quantity-btn" onclick="adjustModalQuantity(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- Special Instructions -->
+                <div class="special-instructions">
+                    <label for="specialInstructions">Special Instructions (Optional)</label>
+                    <textarea id="specialInstructions" placeholder="e.g., No onions, extra spicy..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="total-price" id="modalTotalPrice"></div>
+                <button class="btn btn-primary" id="addToCartBtn">Add to Cart</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class RestaurantPage {
+            constructor() {
+                this.restaurantId = new URLSearchParams(window.location.search).get('id');
+                this.restaurant = null;
+                this.menu = null;
+                this.currentItem = null;
+                this.modalQuantity = 1;
+                this.modalAddOns = {};
+                this.init();
+            }
+
+            init() {
+                if (!this.restaurantId) {
+                    window.location.href = '/restaurants.html';
+                    return;
+                }
+
+                this.loadRestaurant();
+                this.setupEventListeners();
+                this.updateMiniCart();
+            }
+
+            loadRestaurant() {
+                this.restaurant = Store.get('restaurants').find(r => r.id === this.restaurantId);
+                this.menu = Store.get('menus')[this.restaurantId];
+
+                if (!this.restaurant) {
+                    window.location.href = '/restaurants.html';
+                    return;
+                }
+
+                this.renderRestaurantHeader();
+                this.renderMenuCategories();
+                this.renderMenu();
+                this.renderRestaurantInfo();
+                this.renderReviews();
+                this.updatePageTitle();
+                this.addStructuredData();
+            }
+
+            setupEventListeners() {
+                // Tab switching
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+                });
+
+                // Mobile cart toggle
+                document.getElementById('mobileCartBtn').addEventListener('click', () => {
+                    document.getElementById('mobileCartDrawer').classList.add('active');
+                });
+
+                document.getElementById('drawerClose').addEventListener('click', () => {
+                    document.getElementById('mobileCartDrawer').classList.remove('active');
+                });
+
+                // Add to cart modal
+                document.getElementById('addToCartBtn').addEventListener('click', () => {
+                    this.addToCart();
+                });
+
+                // Listen for cart updates
+                window.addEventListener('storage:update', (e) => {
+                    if (e.detail.key === 'cart') {
+                        this.updateMiniCart();
+                    }
+                });
+            }
+
+            renderRestaurantHeader() {
+                const header = document.getElementById('restaurantHeader');
+                const isOpen = this.isRestaurantOpen();
+                
+                header.innerHTML = `
+                    <div class="restaurant-banner">
+                        <img src="${this.restaurant.image}" alt="${this.restaurant.name}">
+                    </div>
+                    <div class="restaurant-details">
+                        <div class="container">
+                            <div class="restaurant-main-info">
+                                <div class="restaurant-logo">
+                                    <img src="${this.restaurant.logo}" alt="${this.restaurant.name}">
+                                </div>
+                                <div class="restaurant-text">
+                                    <h1>${this.restaurant.name}</h1>
+                                    <div class="restaurant-meta">
+                                        <span class="location">
+                                            <i class="ri-map-pin-line"></i>
+                                            ${this.restaurant.area}, Warri
+                                        </span>
+                                        <span class="rating">
+                                            ${UI.renderRating(this.restaurant.rating)}
+                                            <span class="rating-text">(${this.restaurant.reviews} reviews)</span>
+                                        </span>
+                                        <span class="delivery-info">
+                                            <i class="ri-time-line"></i>
+                                            ${this.restaurant.deliveryTime} mins delivery
+                                        </span>
+                                        <span class="status ${isOpen ? 'open' : 'open'}">
+                                            ${isOpen ? 'Open' : 'open'}
+                                        </span>
+                                    </div>
+                                    <div class="restaurant-cuisines">
+                                        ${this.restaurant.cuisines.map(cuisine => 
+                                            `<span class="cuisine-tag">${cuisine}</span>`
+                                        ).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderMenuCategories() {
+                if (!this.menu) return;
+                
+                const categories = document.getElementById('menuCategories');
+                const categoryList = Object.keys(this.menu);
+                
+                categories.innerHTML = `
+                    <h4>Menu Categories</h4>
+                    ${categoryList.map(category => `
+                        <a href="#category-${category}" class="category-link" data-category="${category}">
+                            ${category}
+                            <span class="item-count">(${this.menu[category].length})</span>
+                        </a>
+                    `).join('')}
+                `;
+
+                // Add click handlers for smooth scrolling
+                document.querySelectorAll('.category-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const categoryElement = document.getElementById(`category-${link.dataset.category}`);
+                        if (categoryElement) {
+                            categoryElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    });
+                });
+            }
+
+            renderMenu() {
+                if (!this.menu) return;
+                
+                const menuContent = document.getElementById('menuContent');
+                const categoryList = Object.keys(this.menu);
+                
+                menuContent.innerHTML = categoryList.map(category => `
+                    <div class="menu-category" id="category-${category}">
+                        <h3 class="category-title">${category}</h3>
+                        <div class="menu-items">
+                            ${this.menu[category].map(item => this.renderMenuItem(item)).join('')}
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add click handlers for menu items
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.openAddToCartModal(item.dataset.itemId);
+                    });
+                });
+            }
+
+            renderMenuItem(item) {
+                const isVegan = item.dietary && item.dietary.includes('vegan');
+                const isHalal = item.dietary && item.dietary.includes('halal');
+                const isSpicy = item.dietary && item.dietary.includes('spicy');
+                
+                return `
+                    <div class="menu-item" data-item-id="${item.id}">
+                        <div class="item-info">
+                            <div class="item-header">
+                                <h4 class="item-name">${item.name}</h4>
+                                <div class="item-badges">
+                                    ${isVegan ? '<span class="dietary-badge vegan">🌱</span>' : ''}
+                                    ${isHalal ? '<span class="dietary-badge halal">حلال</span>' : ''}
+                                    ${isSpicy ? '<span class="dietary-badge spicy">🌶️</span>' : ''}
+                                </div>
+                            </div>
+                            <p class="item-description">${item.description}</p>
+                            <div class="item-price">₦${item.price.toLocaleString()}</div>
+                            ${item.addOns && item.addOns.length > 0 ? 
+                                '<p class="customizable">Customizable</p>' : ''
+                            }
+                        </div>
+                        <div class="item-image">
+                            <img src="${item.image}" alt="${item.name}" loading="lazy">
+                            <button class="add-btn">
+                                <i class="ri-add-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderRestaurantInfo() {
+                const info = document.getElementById('restaurantInfo');
+                
+                info.innerHTML = `
+                    <div class="info-section">
+                        <h3>About ${this.restaurant.name}</h3>
+                        <p>${this.restaurant.description}</p>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3>Opening Hours</h3>
+                        <div class="hours-list">
+                            ${Object.entries(this.restaurant.hours).map(([day, hours]) => `
+                                <div class="hours-item">
+                                    <span class="day">${day}</span>
+                                    <span class="time">${hours}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3>Delivery Information</h3>
+                        <div class="delivery-info-grid">
+                            <div class="info-item">
+                                <i class="ri-time-line"></i>
+                                <div>
+                                    <strong>Delivery Time</strong>
+                                    <span>${this.restaurant.deliveryTime} minutes</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="ri-truck-line"></i>
+                                <div>
+                                    <strong>Delivery Fee</strong>
+                                    <span>From ₦${this.restaurant.deliveryFee}</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="ri-money-naira-circle-line"></i>
+                                <div>
+                                    <strong>Minimum Order</strong>
+                                    <span>₦${this.restaurant.minOrder}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-section">
+                        <h3>Contact & Location</h3>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="ri-map-pin-line"></i>
+                                <span>${this.restaurant.address}</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="ri-phone-line"></i>
+                                <span>${this.restaurant.phone}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderReviews() {
+                const reviews = document.getElementById('reviewsContent');
+                const mockReviews = this.generateMockReviews();
+                
+                reviews.innerHTML = `
+                    <div class="reviews-summary">
+                        <div class="rating-overview">
+                            <div class="big-rating">
+                                <span class="rating-number">${this.restaurant.rating}</span>
+                                <div class="stars">${UI.renderRating(this.restaurant.rating)}</div>
+                            </div>
+                            <p>${this.restaurant.reviews} reviews</p>
+                        </div>
+                    </div>
+                    
+                    <div class="reviews-list">
+                        ${mockReviews.map(review => `
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="reviewer">
+                                        <div class="reviewer-avatar">
+                                            ${review.name.charAt(0)}
+                                        </div>
+                                        <div class="reviewer-info">
+                                            <strong>${review.name}</strong>
+                                            <div class="review-rating">${UI.renderRating(review.rating)}</div>
+                                        </div>
+                                    </div>
+                                    <span class="review-date">${review.date}</span>
+                                </div>
+                                <p class="review-text">${review.text}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            switchTab(tabName) {
+                // Update tab buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tabName);
+                });
+                
+                // Update tab panes
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.toggle('active', pane.id === `${tabName}Tab`);
+                });
+            }
+
+            openAddToCartModal(itemId) {
+                const item = this.findMenuItem(itemId);
+                if (!item) return;
+
+                this.currentItem = item;
+                this.modalQuantity = 1;
+                this.modalAddOns = {};
+
+                // Populate modal
+                document.getElementById('modalItemName').textContent = item.name;
+                document.getElementById('modalItemDescription').textContent = item.description;
+                document.getElementById('modalItemPrice').textContent = `₦${item.price.toLocaleString()}`;
+                document.getElementById('modalItemImage').innerHTML = 
+                    `<img src="${item.image}" alt="${item.name}">`;
+                document.getElementById('modalQuantity').textContent = '1';
+                document.getElementById('specialInstructions').value = '';
+
+                // Render add-ons
+                this.renderModalAddOns(item);
+                this.updateModalPrice();
+
+                UI.showModal('addToCartModal');
+            }
+
+            renderModalAddOns(item) {
+                const addOnsContainer = document.getElementById('modalAddOns');
+                
+                if (!item.addOns || item.addOns.length === 0) {
+                    addOnsContainer.innerHTML = '';
+                    return;
+                }
+
+                addOnsContainer.innerHTML = `
+                    <h4>Customize Your Order</h4>
+                    ${item.addOns.map(addOn => `
+                        <div class="add-on-group">
+                            <h5>${addOn.name} ${addOn.required ? '(Required)' : '(Optional)'}</h5>
+                            ${addOn.options.map(option => `
+                                <label class="add-on-option">
+                                    <input type="${addOn.type}" 
+                                           name="${addOn.name}" 
+                                           value="${option.name}"
+                                           data-price="${option.price}"
+                                           ${addOn.required ? 'required' : ''}
+                                           onchange="restaurantPage.updateModalAddOns()">
+                                    <span class="option-text">
+                                        ${option.name}
+                                        ${option.price > 0 ? `(+₦${option.price})` : ''}
+                                    </span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                `;
+            }
+
+            updateModalAddOns() {
+                this.modalAddOns = {};
+                
+                document.querySelectorAll('#modalAddOns input:checked').forEach(input => {
+                    if (!this.modalAddOns[input.name]) {
+                        this.modalAddOns[input.name] = [];
+                    }
+                    this.modalAddOns[input.name].push({
+                        name: input.value,
+                        price: parseInt(input.dataset.price) || 0
+                    });
+                });
+                
+                this.updateModalPrice();
+            }
+
+            updateModalPrice() {
+                if (!this.currentItem) return;
+                
+                let basePrice = this.currentItem.price;
+                let addOnPrice = 0;
+                
+                Object.values(this.modalAddOns).forEach(addOnGroup => {
+                    addOnGroup.forEach(addOn => {
+                        addOnPrice += addOn.price;
+                    });
+                });
+                
+                const totalPrice = (basePrice + addOnPrice) * this.modalQuantity;
+                document.getElementById('modalTotalPrice').textContent = `₦${totalPrice.toLocaleString()}`;
+            }
+
+            addToCart() {
+                if (!this.currentItem) return;
+
+                // Validate required add-ons
+                const requiredAddOns = this.currentItem.addOns?.filter(addOn => addOn.required) || [];
+                const isValid = requiredAddOns.every(addOn => this.modalAddOns[addOn.name]);
+
+                if (!isValid) {
+                    UI.showToast('Please select all required options', 'error');
+                    return;
+                }
+
+                const cartItem = {
+                    restaurantId: this.restaurantId,
+                    restaurantName: this.restaurant.name,
+                    itemId: this.currentItem.id,
+                    name: this.currentItem.name,
+                    price: this.currentItem.price,
+                    image: this.currentItem.image,
+                    quantity: this.modalQuantity,
+                    addOns: { ...this.modalAddOns },
+                    specialInstructions: document.getElementById('specialInstructions').value,
+                    timestamp: Date.now()
+                };
+
+                Cart.addItem(cartItem);
+                UI.closeModal('addToCartModal');
+                UI.showToast(`${this.currentItem.name} added to cart!`, 'success');
+                this.updateMiniCart();
+            }
+
+            updateMiniCart() {
+                const cartItems = Cart.getItems();
+                const restaurantItems = cartItems.filter(item => item.restaurantId === this.restaurantId);
+                const total = Cart.getTotal();
+                
+                // Desktop mini cart
+                const miniCartItems = document.getElementById('miniCartItems');
+                const miniCartFooter = document.getElementById('miniCartFooter');
+                const miniCartTotal = document.getElementById('miniCartTotal');
+                
+                if (restaurantItems.length === 0) {
+                    miniCartItems.innerHTML = `
+                        <div class="empty-cart">
+                            <i class="ri-shopping-cart-line"></i>
+                            <p>Your cart is empty</p>
+                        </div>
+                    `;
+                    miniCartFooter.style.display = 'none';
+                } else {
+                    miniCartItems.innerHTML = restaurantItems.map(item => `
+                        <div class="mini-cart-item">
+                            <span class="item-name">${item.name}</span>
+                            <span class="item-quantity">×${item.quantity}</span>
+                            <span class="item-price">₦${(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                    `).join('');
+                    
+                    miniCartTotal.textContent = `Total: ₦${total.toLocaleString()}`;
+                    miniCartFooter.style.display = 'block';
+                }
+                
+                // Mobile cart
+                if (restaurantItems.length > 0) {
+                    document.getElementById('mobileCartBtn').style.display = 'block';
+                    document.getElementById('mobileCartTotal').textContent = `₦${total.toLocaleString()}`;
+                } else {
+                    document.getElementById('mobileCartBtn').style.display = 'none';
+                }
+                
+                // Update mobile cart drawer
+                this.updateMobileCartDrawer(restaurantItems, total);
+            }
+
+            updateMobileCartDrawer(items, total) {
+                const mobileCartItems = document.getElementById('mobileCartItems');
+                const mobileCartFooter = document.getElementById('mobileCartFooter');
+                
+                if (items.length === 0) {
+                    mobileCartItems.innerHTML = `
+                        <div class="empty-cart">
+                            <i class="ri-shopping-cart-line"></i>
+                            <p>Your cart is empty</p>
+                        </div>
+                    `;
+                    mobileCartFooter.innerHTML = '';
+                } else {
+                    mobileCartItems.innerHTML = items.map(item => `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="${item.name}" class="item-image">
+                            <div class="item-details">
+                                <h4>${item.name}</h4>
+                                <p>Quantity: ${item.quantity}</p>
+                                <span class="item-price">₦${(item.price * item.quantity).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    
+                    mobileCartFooter.innerHTML = `
+                        <div class="total-row">
+                            <strong>Total: ₦${total.toLocaleString()}</strong>
+                        </div>
+                        <a href="/cart.html" class="btn btn-primary">Go to Cart</a>
+                    `;
+                }
+            }
+
+            findMenuItem(itemId) {
+                for (const category of Object.values(this.menu)) {
+                    const item = category.find(item => item.id === itemId);
+                    if (item) return item;
+                }
+                return null;
+            }
+
+            isRestaurantOpen() {
+                const now = new Date();
+                const day = now.toLocaleDateString('en', { weekday: 'short' }).toLowerCase(); // Get day abbreviation
+                const time = now.getHours() * 100 + now.getMinutes(); // Convert to HHMM format
+                
+                const hours = this.restaurant.hours[day];
+                if (!hours || hours === 'open') return false;
+                
+                const [open, close] = hours.split(' - ').map(t => {
+                    const [hour, minute] = t.split(':').map(Number);
+                    return hour * 100 + minute;
+                });
+                
+                return time >= open && time <= close;
+            }
+
+            generateMockReviews() {
+                const names = ['Emeka O.', 'Sarah A.', 'David I.', 'Grace U.', 'James N.'];
+                const reviewTexts = [
+                    'Great food and fast delivery! The jollof rice was amazing.',
+                    'Always consistent quality. My go-to restaurant in Warri.',
+                    'Excellent customer service and the food arrived hot.',
+                    'Love their grilled fish. Fresh and well seasoned.',
+                    'Good portion sizes and reasonable prices.'
+                ];
+                
+                return names.map((name, i) => ({
+                    name,
+                    rating: 4 + Math.random(),
+                    text: reviewTexts[i],
+                    date: `${Math.floor(Math.random() * 30) + 1} days ago`
+                }));
+            }
+
+            updatePageTitle() {
+                document.title = `${this.restaurant.name} - Order Online | FoodPick Warri`;
+            }
+
+            addStructuredData() {
+                const structuredData = {
+                    "@context": "https://schema.org",
+                    "@type": "Restaurant",
+                    "name": this.restaurant.name,
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": this.restaurant.address,
+                        "addressLocality": this.restaurant.area,
+                        "addressRegion": "Delta State",
+                        "addressCountry": "NG"
+                    },
+                    "aggregateRating": {
+                        "@type": "AggregateRating",
+                        "ratingValue": this.restaurant.rating,
+                        "reviewCount": this.restaurant.reviews
+                    },
+                    "servesCuisine": this.restaurant.cuisines,
+                    "priceRange": this.restaurant.priceRange
+                };
+
+                const script = document.createElement('script');
+                script.type = 'application/ld+json';
+                script.textContent = JSON.stringify(structuredData);
+                document.head.appendChild(script);
+            }
+        }
+
+        // Global functions for modal controls
+        function adjustModalQuantity(change) {
+            restaurantPage.modalQuantity = Math.max(1, restaurantPage.modalQuantity + change);
+            document.getElementById('modalQuantity').textContent = restaurantPage.modalQuantity;
+            restaurantPage.updateModalPrice();
+        }
+
+        // Initialize when DOM is loaded
+        let restaurantPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            restaurantPage = new RestaurantPage();
+        });
+    </script>
+</body>
+</html>

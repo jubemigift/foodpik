@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Order - FoodPick Warri</title>
+    <meta name="description" content="Track your food order delivery status in real-time in Warri, Delta State">
+    
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#4B0082">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-dark">
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Warri</span>
+            </a>
+            
+            <div class="nav-menu" id="navMenu">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/restaurants.html" class="nav-link">Restaurants</a>
+                <a href="/track.html" class="nav-link active">Track Order</a>
+                <a href="/account.html" class="nav-link">Account</a>
+                <a href="/cart.html" class="nav-link cart-link">
+                    <i class="ri-shopping-cart-line"></i>
+                    Cart
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </a>
+            </div>
+            
+            <button class="nav-toggle" id="navToggle">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="track-layout">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Track Your Order</h1>
+                <p>Get real-time updates on your food delivery</p>
+            </div>
+
+            <!-- Order ID Input (shown when no order ID in URL) -->
+            <div class="track-input-section" id="trackInputSection">
+                <div class="track-input-card">
+                    <h2>Enter Your Order ID</h2>
+                    <p>You can find your order ID in the confirmation message or email</p>
+                    <div class="track-input-form">
+                        <input type="text" id="orderIdInput" placeholder="e.g., FPW123456789" maxlength="12">
+                        <button class="btn btn-primary" onclick="trackPage.trackOrder()">Track Order</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Tracking Content -->
+            <div class="track-content" id="trackContent" style="display: none;">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class TrackPage {
+            constructor() {
+                this.orderId = new URLSearchParams(window.location.search).get('orderId');
+                this.order = null;
+                this.statusUpdateInterval = null;
+                this.init();
+            }
+
+            init() {
+                if (this.orderId) {
+                    this.loadOrder();
+                } else {
+                    this.showOrderInput();
+                }
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Enter key on order ID input
+                document.getElementById('orderIdInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.trackOrder();
+                    }
+                });
+            }
+
+            showOrderInput() {
+                document.getElementById('trackInputSection').style.display = 'block';
+                document.getElementById('trackContent').style.display = 'none';
+            }
+
+            trackOrder() {
+                const orderId = document.getElementById('orderIdInput').value.trim().toUpperCase();
+                if (!orderId) {
+                    UI.showToast('Please enter an order ID', 'error');
+                    return;
+                }
+
+                this.orderId = orderId;
+                this.loadOrder();
+                
+                // Update URL without page reload
+                window.history.pushState(null, '', `?orderId=${orderId}`);
+            }
+
+            loadOrder() {
+                const orders = Store.get('orders') || [];
+                this.order = orders.find(order => order.id === this.orderId);
+
+                if (!this.order) {
+                    this.showOrderNotFound();
+                    return;
+                }
+
+                this.showOrderTracking();
+                this.startStatusUpdates();
+            }
+
+            showOrderNotFound() {
+                document.getElementById('trackInputSection').style.display = 'none';
+                document.getElementById('trackContent').style.display = 'block';
+                document.getElementById('trackContent').innerHTML = `
+                    <div class="order-not-found">
+                        <div class="not-found-icon">
+                            <i class="ri-search-line"></i>
+                        </div>
+                        <h2>Order Not Found</h2>
+                        <p>We couldn't find an order with ID: <strong>${this.orderId}</strong></p>
+                        <p>Please check your order ID and try again, or contact our support team if you need assistance.</p>
+                        <div class="not-found-actions">
+                            <button class="btn btn-primary" onclick="trackPage.showOrderInput(); trackPage.clearOrderId();">
+                                Try Again
+                            </button>
+                            <a href="tel:+234XXXXXXXXX" class="btn btn-outline">
+                                <i class="ri-phone-line"></i>
+                                Call Support
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            showOrderTracking() {
+                document.getElementById('trackInputSection').style.display = 'none';
+                document.getElementById('trackContent').style.display = 'block';
+                
+                const estimatedTime = new Date(this.order.estimatedDelivery);
+                const orderTime = new Date(this.order.timestamp);
+                
+                document.getElementById('trackContent').innerHTML = `
+                    <div class="order-tracking">
+                        <!-- Order Header -->
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h2>Order #${this.order.id}</h2>
+                                <div class="order-meta">
+                                    <span class="order-time">
+                                        <i class="ri-time-line"></i>
+                                        Ordered ${this.formatTime(orderTime)}
+                                    </span>
+                                    <span class="order-total">
+                                        <i class="ri-money-naira-circle-line"></i>
+                                        ₦${this.order.total.toLocaleString()}
+                                    </span>
+                                    <span class="estimated-time">
+                                        <i class="ri-truck-line"></i>
+                                        ETA: ${this.formatTime(estimatedTime)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="order-status">
+                                <div class="status-badge ${this.order.status}">
+                                    ${this.getStatusIcon(this.order.status)}
+                                    ${this.getStatusText(this.order.status)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Timeline -->
+                        <div class="status-timeline">
+                            <h3>Order Status</h3>
+                            <div class="timeline">
+                                ${this.renderStatusTimeline()}
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="order-items-section">
+                            <h3>Order Items</h3>
+                            <div class="order-items">
+                                ${this.renderOrderItems()}
+                            </div>
+                        </div>
+
+                        <!-- Delivery Details -->
+                        <div class="delivery-details-section">
+                            <h3>Delivery Details</h3>
+                            <div class="delivery-details">
+                                <div class="detail-group">
+                                    <div class="detail-item">
+                                        <i class="ri-map-pin-line"></i>
+                                        <div>
+                                            <strong>Delivery Address</strong>
+                                            <span>${this.order.address.street}, ${this.order.address.area}</span>
+                                            ${this.order.address.directions ? `<small>${this.order.address.directions}</small>` : ''}
+                                        </div>
+                                    </div>
+                                    ${this.order.deliveryNotes ? `
+                                        <div class="detail-item">
+                                            <i class="ri-sticky-note-line"></i>
+                                            <div>
+                                                <strong>Delivery Notes</strong>
+                                                <span>${this.order.deliveryNotes}</span>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    <div class="detail-item">
+                                        <i class="ri-money-naira-circle-line"></i>
+                                        <div>
+                                            <strong>Payment Method</strong>
+                                            <span>${this.getPaymentMethodText(this.order.paymentMethod)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Support Section -->
+                        <div class="support-section">
+                            <h3>Need Help?</h3>
+                            <p>If you have any questions about your order, don't hesitate to contact us.</p>
+                            <div class="support-actions">
+                                <a href="tel:+234XXXXXXXXX" class="support-btn">
+                                    <i class="ri-phone-line"></i>
+                                    Call Us
+                                </a>
+                                <a href="https://wa.me/234XXXXXXXXX?text=Hello, I need help with order ${this.order.id}" 
+                                   target="_blank" class="support-btn">
+                                    <i class="ri-whatsapp-line"></i>
+                                    WhatsApp
+                                </a>
+                                <button class="support-btn" onclick="trackPage.showOrderInput(); trackPage.clearOrderId();">
+                                    <i class="ri-search-line"></i>
+                                    Track Another Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderStatusTimeline() {
+                const statuses = [
+                    { key: 'received', label: 'Order Received', icon: 'ri-checkbox-circle-line' },
+                    { key: 'confirmed', label: 'Confirmed by Restaurant', icon: 'ri-restaurant-line' },
+                    { key: 'preparing', label: 'Preparing Your Order', icon: 'ri-knife-line' },
+                    { key: 'ready', label: 'Ready for Pickup', icon: 'ri-check-line' },
+                    { key: 'picked', label: 'Rider Assigned', icon: 'ri-user-line' },
+                    { key: 'on_way', label: 'On the Way', icon: 'ri-truck-line' },
+                    { key: 'delivered', label: 'Delivered', icon: 'ri-gift-line' }
+                ];
+
+                const currentStatusIndex = statuses.findIndex(status => status.key === this.order.status);
+
+                return statuses.map((status, index) => {
+                    const isPast = index < currentStatusIndex;
+                    const isCurrent = index === currentStatusIndex;
+                    const timestamp = this.generateStatusTimestamp(status.key, index);
+                    
+                    return `
+                        <div class="timeline-item ${isPast ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                            <div class="timeline-marker">
+                                <i class="${status.icon}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h4>${status.label}</h4>
+                                ${(isPast || isCurrent) && timestamp ? `<span class="timeline-time">${this.formatTime(timestamp)}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderOrderItems() {
+                const itemsByRestaurant = this.groupItemsByRestaurant(this.order.items);
+                
+                return Object.entries(itemsByRestaurant).map(([restaurantId, items]) => {
+                    const restaurant = Store.get('restaurants').find(r => r.id === restaurantId);
+                    
+                    return `
+                        <div class="restaurant-group">
+                            <div class="restaurant-name">${restaurant?.name || 'Unknown Restaurant'}</div>
+                            <div class="items-list">
+                                ${items.map(item => `
+                                    <div class="order-item">
+                                        <img src="${item.image}" alt="${item.name}" class="item-image">
+                                        <div class="item-details">
+                                            <h4>${item.name}</h4>
+                                            <div class="item-quantity">Quantity: ${item.quantity}</div>
+                                            ${item.specialInstructions ? `<div class="item-instructions">${item.specialInstructions}</div>` : ''}
+                                        </div>
+                                        <div class="item-price">₦${(item.price * item.quantity).toLocaleString()}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            groupItemsByRestaurant(items) {
+                return items.reduce((groups, item) => {
+                    const restaurantId = item.restaurantId;
+                    if (!groups[restaurantId]) {
+                        groups[restaurantId] = [];
+                    }
+                    groups[restaurantId].push(item);
+                    return groups;
+                }, {});
+            }
+
+            startStatusUpdates() {
+                // Only simulate status updates for demo purposes
+                if (this.order.status === 'delivered') return;
+
+                // Demo mode: automatically progress order status
+                const demoMode = localStorage.getItem('demoMode') === 'true';
+                if (demoMode && this.order.status !== 'delivered') {
+                    this.statusUpdateInterval = setInterval(() => {
+                        this.simulateStatusUpdate();
+                    }, 4000); // Update every 4 seconds for demo
+                }
+            }
+
+            simulateStatusUpdate() {
+                const statusProgression = ['received', 'confirmed', 'preparing', 'ready', 'picked', 'on_way', 'delivered'];
+                const currentIndex = statusProgression.indexOf(this.order.status);
+                
+                if (currentIndex < statusProgression.length - 1) {
+                    this.order.status = statusProgression[currentIndex + 1];
+                    
+                    // Update in storage
+                    const orders = Store.get('orders') || [];
+                    const orderIndex = orders.findIndex(o => o.id === this.order.id);
+                    if (orderIndex !== -1) {
+                        orders[orderIndex] = this.order;
+                        Store.set('orders', orders);
+                    }
+                    
+                    // Re-render the tracking view
+                    this.showOrderTracking();
+                    
+                    // Show toast notification
+                    UI.showToast(`Order status updated: ${this.getStatusText(this.order.status)}`, 'info');
+                }
+                
+                if (this.order.status === 'delivered') {
+                    clearInterval(this.statusUpdateInterval);
+                    UI.showToast('Your order has been delivered! 🎉', 'success');
+                }
+            }
+
+            generateStatusTimestamp(statusKey, index) {
+                if (!this.order.timestamp) return null;
+                
+                const orderTime = new Date(this.order.timestamp);
+                const minutesPerStatus = [0, 2, 8, 20, 22, 25, 35]; // Minutes after order for each status
+                
+                const statusTime = new Date(orderTime.getTime() + minutesPerStatus[index] * 60 * 1000);
+                
+                // Only return timestamp if this status has been reached
+                const currentStatusIndex = ['received', 'confirmed', 'preparing', 'ready', 'picked', 'on_way', 'delivered'].indexOf(this.order.status);
+                
+                return index <= currentStatusIndex ? statusTime : null;
+            }
+
+            getStatusIcon(status) {
+                const icons = {
+                    received: '<i class="ri-checkbox-circle-line"></i>',
+                    confirmed: '<i class="ri-restaurant-line"></i>',
+                    preparing: '<i class="ri-knife-line"></i>',
+                    ready: '<i class="ri-check-line"></i>',
+                    picked: '<i class="ri-user-line"></i>',
+                    on_way: '<i class="ri-truck-line"></i>',
+                    delivered: '<i class="ri-gift-line"></i>'
+                };
+                return icons[status] || '<i class="ri-time-line"></i>';
+            }
+
+            getStatusText(status) {
+                const texts = {
+                    received: 'Order Received',
+                    confirmed: 'Confirmed by Restaurant',
+                    preparing: 'Preparing Your Order',
+                    ready: 'Ready for Pickup',
+                    picked: 'Rider Assigned',
+                    on_way: 'On the Way',
+                    delivered: 'Delivered'
+                };
+                return texts[status] || 'Processing';
+            }
+
+            getPaymentMethodText(method) {
+                const methods = {
+                    cash: 'Cash on Delivery',
+                    transfer: 'Bank Transfer',
+                    card: 'Card Payment'
+                };
+                return methods[method] || 'Unknown';
+            }
+
+            formatTime(date) {
+                if (!date) return '';
+                const d = new Date(date);
+                return d.toLocaleTimeString('en-NG', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+            }
+
+            clearOrderId() {
+                this.orderId = null;
+                this.order = null;
+                document.getElementById('orderIdInput').value = '';
+                window.history.pushState(null, '', window.location.pathname);
+                
+                if (this.statusUpdateInterval) {
+                    clearInterval(this.statusUpdateInterval);
+                    this.statusUpdateInterval = null;
+                }
+            }
+
+            destroy() {
+                if (this.statusUpdateInterval) {
+                    clearInterval(this.statusUpdateInterval);
+                }
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let trackPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            trackPage = new TrackPage();
+        });
+
+        // Clean up when page is unloaded
+        window.addEventListener('beforeunload', () => {
+            if (trackPage) {
+                trackPage.destroy();
+            }
+        });
+    </script>
+</body>
+</html>

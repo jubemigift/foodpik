@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FoodPick Warri</title>
+    <meta name="description" content="Admin dashboard for managing restaurants, menus, orders, and coupons">
+    
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="theme-dark">
+    <!-- Admin Navigation -->
+    <nav class="admin-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo"></div>
+                <span>FoodPick Admin</span>
+            </a>
+            
+            <div class="admin-nav-menu">
+                <span class="admin-user" id="adminUser">Admin User</span>
+                <button class="btn btn-outline" onclick="adminPage.logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-layout" id="adminLayout">
+        <!-- Login Screen -->
+        <div class="admin-login" id="adminLogin">
+            <div class="login-card">
+                <h1>Admin Login</h1>
+                <p>Access the FoodPick Warri admin dashboard</p>
+                
+                <form id="adminLoginForm" class="form">
+                    <div class="form-group">
+                        <label for="adminUsername">Username</label>
+                        <input type="text" id="adminUsername" required placeholder="Enter admin username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="adminPassword">Password</label>
+                        <input type="password" id="adminPassword" required placeholder="Enter admin password">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large">Login</button>
+                </form>
+                
+                <div class="demo-credentials">
+                    <h4>Demo Credentials</h4>
+                    <p><strong>Username:</strong> admin</p>
+                    <p><strong>Password:</strong> admin123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div class="admin-dashboard" id="adminDashboard" style="display: none;">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-menu">
+                    <button class="menu-item active" onclick="adminPage.switchSection('dashboard')" data-section="dashboard">
+                        <i class="ri-dashboard-line"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="menu-item" onclick="adminPage.switchSection('restaurants')" data-section="restaurants">
+                        <i class="ri-restaurant-line"></i>
+                        <span>Restaurants</span>
+                    </button>
+                    <button class="menu-item" onclick="adminPage.switchSection('menus')" data-section="menus">
+                        <i class="ri-file-list-line"></i>
+                        <span>Menus</span>
+                    </button>
+                    <button class="menu-item" onclick="adminPage.switchSection('orders')" data-section="orders">
+                        <i class="ri-shopping-bag-line"></i>
+                        <span>Orders</span>
+                    </button>
+                    <button class="menu-item" onclick="adminPage.switchSection('coupons')" data-section="coupons">
+                        <i class="ri-coupon-line"></i>
+                        <span>Coupons</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="admin-main">
+                <div class="admin-content" id="adminContent">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/assets/js/data.js"></script>
+    <script src="/assets/js/store.js"></script>
+    <script src="/assets/js/ui.js"></script>
+    <script src="/assets/js/cart.js"></script>
+    <script src="/assets/js/admin.js"></script>
+    <script src="/assets/js/app.js"></script>
+    <script>
+        class AdminPage {
+            constructor() {
+                this.currentSection = 'dashboard';
+                this.isLoggedIn = Store.get('adminLoggedIn') || false;
+                this.editingItem = null;
+                this.charts = {};
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.checkAuthStatus();
+            }
+
+            setupEventListeners() {
+                // Admin login form
+                document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+            }
+
+            checkAuthStatus() {
+                if (this.isLoggedIn) {
+                    this.showDashboard();
+                } else {
+                    this.showLogin();
+                }
+            }
+
+            handleLogin() {
+                const username = document.getElementById('adminUsername').value;
+                const password = document.getElementById('adminPassword').value;
+
+                // Simple demo authentication
+                if (username === 'admin' && password === 'admin123') {
+                    this.isLoggedIn = true;
+                    Store.set('adminLoggedIn', true);
+                    UI.showToast('Login successful!', 'success');
+                    this.showDashboard();
+                } else {
+                    UI.showToast('Invalid credentials', 'error');
+                }
+            }
+
+            logout() {
+                UI.showConfirm('Are you sure you want to logout?', () => {
+                    this.isLoggedIn = false;
+                    Store.remove('adminLoggedIn');
+                    UI.showToast('Logged out successfully', 'info');
+                    this.showLogin();
+                });
+            }
+
+            showLogin() {
+                document.getElementById('adminLogin').style.display = 'flex';
+                document.getElementById('adminDashboard').style.display = 'none';
+            }
+
+            showDashboard() {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminDashboard').style.display = 'flex';
+                this.renderSection();
+            }
+
+            switchSection(section) {
+                this.currentSection = section;
+                
+                // Update active menu item
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.section === section);
+                });
+                
+                this.renderSection();
+            }
+
+            renderSection() {
+                const content = document.getElementById('adminContent');
+                
+                switch (this.currentSection) {
+                    case 'dashboard':
+                        content.innerHTML = this.renderDashboardSection();
+                        this.initializeCharts();
+                        break;
+                    case 'restaurants':
+                        content.innerHTML = this.renderRestaurantsSection();
+                        break;
+                    case 'menus':
+                        content.innerHTML = this.renderMenusSection();
+                        break;
+                    case 'orders':
+                        content.innerHTML = this.renderOrdersSection();
+                        break;
+                    case 'coupons':
+                        content.innerHTML = this.renderCouponsSection();
+                        break;
+                }
+            }
+
+            renderDashboardSection() {
+                const orders = Store.get('orders') || [];
+                const restaurants = Store.get('restaurants') || [];
+                const todayOrders = orders.filter(order => {
+                    const orderDate = new Date(order.timestamp);
+                    const today = new Date();
+                    return orderDate.toDateString() === today.toDateString();
+                });
+
+                const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+                const todayRevenue = todayOrders.reduce((sum, order) => sum + order.total, 0);
+                const avgOrderValue = orders.length > 0 ? totalRevenue / orders.length : 0;
+
+                return `
+                    <div class="dashboard-header">
+                        <h1>Dashboard Overview</h1>
+                        <p>Welcome to FoodPick Warri Admin Dashboard</p>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="ri-shopping-bag-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">${orders.length}</div>
+                                <div class="stat-label">Total Orders</div>
+                                <div class="stat-change">+${todayOrders.length} today</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="ri-money-naira-circle-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">₦${totalRevenue.toLocaleString()}</div>
+                                <div class="stat-label">Total Revenue</div>
+                                <div class="stat-change">₦${todayRevenue.toLocaleString()} today</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="ri-restaurant-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">${restaurants.length}</div>
+                                <div class="stat-label">Restaurants</div>
+                                <div class="stat-change">Active partners</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="ri-bar-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number">₦${avgOrderValue.toLocaleString()}</div>
+                                <div class="stat-label">Avg Order Value</div>
+                                <div class="stat-change">Per order</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="charts-section">
+                        <div class="chart-container">
+                            <h3>Orders This Week</h3>
+                            <canvas id="ordersChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Revenue by Area</h3>
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Orders -->
+                    <div class="recent-section">
+                        <h3>Recent Orders</h3>
+                        <div class="table-container">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Area</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${orders.slice(0, 10).map(order => `
+                                        <tr>
+                                            <td><strong>#${order.id}</strong></td>
+                                            <td>${order.address?.label || 'Unknown'}</td>
+                                            <td>${order.address?.area || 'Unknown'}</td>
+                                            <td>₦${order.total.toLocaleString()}</td>
+                                            <td><span class="status-badge ${order.status}">${this.getStatusText(order.status)}</span></td>
+                                            <td>${this.formatDate(order.timestamp)}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderRestaurantsSection() {
+                const restaurants = Store.get('restaurants') || [];
+                
+                return `
+                    <div class="section-header">
+                        <div>
+                            <h1>Restaurants Management</h1>
+                            <p>Manage restaurant partners and their information</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="adminPage.showRestaurantModal()">
+                            <i class="ri-add-line"></i>
+                            Add Restaurant
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Restaurant</th>
+                                    <th>Area</th>
+                                    <th>Cuisines</th>
+                                    <th>Rating</th>
+                                    <th>Delivery Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${restaurants.map(restaurant => `
+                                    <tr>
+                                        <td>
+                                            <div class="restaurant-cell">
+                                                <img src="${restaurant.image}" alt="${restaurant.name}" class="table-image">
+                                                <strong>${restaurant.name}</strong>
+                                            </div>
+                                        </td>
+                                        <td>${restaurant.area}</td>
+                                        <td>${restaurant.cuisines.slice(0, 2).join(', ')}${restaurant.cuisines.length > 2 ? '...' : ''}</td>
+                                        <td>${UI.renderRating(restaurant.rating)} (${restaurant.reviews})</td>
+                                        <td>${restaurant.deliveryTime} mins</td>
+                                        <td><span class="status-badge ${restaurant.isOpen ? 'open' : 'open'}">${restaurant.isOpen ? 'Open' : 'open'}</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn btn-ghost" onclick="adminPage.editRestaurant('${restaurant.id}')" title="Edit">
+                                                    <i class="ri-edit-line"></i>
+                                                </button>
+                                                <button class="btn btn-ghost text-danger" onclick="adminPage.deleteRestaurant('${restaurant.id}')" title="Delete">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Restaurant Modal -->
+                    <div class="modal" id="restaurantModal">
+                        <div class="modal-content large">
+                            <div class="modal-header">
+                                <h3 id="restaurantModalTitle">Add Restaurant</h3>
+                                <button class="modal-close" onclick="UI.closeModal('restaurantModal')">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="restaurantForm" class="form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="restaurantName">Restaurant Name</label>
+                                            <input type="text" id="restaurantName" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="restaurantArea">Area</label>
+                                            <select id="restaurantArea" required>
+                                                <option value="">Select area</option>
+                                                ${WARRI_AREAS.map(area => `<option value="${area}">${area}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="restaurantDescription">Description</label>
+                                        <textarea id="restaurantDescription" rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="restaurantImage">Image URL</label>
+                                            <input type="url" id="restaurantImage">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="restaurantLogo">Logo URL</label>
+                                            <input type="url" id="restaurantLogo">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="restaurantPhone">Phone</label>
+                                            <input type="tel" id="restaurantPhone">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="restaurantAddress">Address</label>
+                                            <input type="text" id="restaurantAddress">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="deliveryTime">Delivery Time (minutes)</label>
+                                            <input type="number" id="deliveryTime" min="15" max="120" value="30">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="deliveryFee">Delivery Fee (₦)</label>
+                                            <input type="number" id="deliveryFee" min="0" value="500">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="restaurantCuisines">Cuisines (comma-separated)</label>
+                                        <input type="text" id="restaurantCuisines" placeholder="e.g., Nigerian, Continental, Chinese">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline" onclick="UI.closeModal('restaurantModal')">Cancel</button>
+                                <button class="btn btn-primary" onclick="adminPage.saveRestaurant()">Save Restaurant</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderMenusSection() {
+                const restaurants = Store.get('restaurants') || [];
+                const menus = Store.get('menus') || {};
+                
+                return `
+                    <div class="section-header">
+                        <div>
+                            <h1>Menu Management</h1>
+                            <p>Manage restaurant menus and menu items</p>
+                        </div>
+                        <div class="section-controls">
+                            <select id="menuRestaurantSelect" onchange="adminPage.filterMenusByRestaurant()">
+                                <option value="">All Restaurants</option>
+                                ${restaurants.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
+                            </select>
+                            <button class="btn btn-primary" onclick="adminPage.showMenuItemModal()">
+                                <i class="ri-add-line"></i>
+                                Add Menu Item
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="menuContent">
+                        ${this.renderMenuList(restaurants, menus)}
+                    </div>
+
+                    <!-- Menu Item Modal -->
+                    <div class="modal" id="menuItemModal">
+                        <div class="modal-content large">
+                            <div class="modal-header">
+                                <h3 id="menuItemModalTitle">Add Menu Item</h3>
+                                <button class="modal-close" onclick="UI.closeModal('menuItemModal')">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="menuItemForm" class="form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="itemRestaurant">Restaurant</label>
+                                            <select id="itemRestaurant" required>
+                                                <option value="">Select restaurant</option>
+                                                ${restaurants.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="itemCategory">Category</label>
+                                            <input type="text" id="itemCategory" placeholder="e.g., Rice, Soups, Grills" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="itemName">Item Name</label>
+                                        <input type="text" id="itemName" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="itemDescription">Description</label>
+                                        <textarea id="itemDescription" rows="3"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="itemPrice">Price (₦)</label>
+                                            <input type="number" id="itemPrice" min="0" step="50" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="itemImage">Image URL</label>
+                                            <input type="url" id="itemImage">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="itemDietary">Dietary Tags (comma-separated)</label>
+                                        <input type="text" id="itemDietary" placeholder="e.g., vegan, halal, spicy">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline" onclick="UI.closeModal('menuItemModal')">Cancel</button>
+                                <button class="btn btn-primary" onclick="adminPage.saveMenuItem()">Save Item</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderMenuList(restaurants, menus) {
+                let html = '';
+                
+                for (const restaurant of restaurants) {
+                    const restaurantMenu = menus[restaurant.id] || {};
+                    const categories = Object.keys(restaurantMenu);
+                    
+                    html += `
+                        <div class="menu-restaurant" data-restaurant="${restaurant.id}">
+                            <div class="menu-restaurant-header">
+                                <h3>${restaurant.name}</h3>
+                                <span class="menu-stats">${categories.length} categories, ${Object.values(restaurantMenu).flat().length} items</span>
+                            </div>
+                            
+                            ${categories.map(category => `
+                                <div class="menu-category">
+                                    <h4>${category}</h4>
+                                    <div class="menu-items-grid">
+                                        ${restaurantMenu[category].map(item => `
+                                            <div class="menu-item-card">
+                                                <img src="${item.image}" alt="${item.name}" class="item-image">
+                                                <div class="item-info">
+                                                    <h5>${item.name}</h5>
+                                                    <p>${item.description}</p>
+                                                    <div class="item-price">₦${item.price.toLocaleString()}</div>
+                                                    ${item.dietary ? `<div class="dietary-tags">${item.dietary.join(', ')}</div>` : ''}
+                                                </div>
+                                                <div class="item-actions">
+                                                    <button class="btn btn-ghost" onclick="adminPage.editMenuItem('${restaurant.id}', '${category}', '${item.id}')">
+                                                        <i class="ri-edit-line"></i>
+                                                    </button>
+                                                    <button class="btn btn-ghost text-danger" onclick="adminPage.deleteMenuItem('${restaurant.id}', '${category}', '${item.id}')">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                return html || '<div class="empty-state"><p>No menu items found</p></div>';
+            }
+
+            renderOrdersSection() {
+                const orders = Store.get('orders') || [];
+                const sortedOrders = orders.sort((a, b) => b.timestamp - a.timestamp);
+                
+                return `
+                    <div class="section-header">
+                        <div>
+                            <h1>Orders Management</h1>
+                            <p>Monitor and manage customer orders</p>
+                        </div>
+                        <div class="section-controls">
+                            <select id="orderStatusFilter" onchange="adminPage.filterOrdersByStatus()">
+                                <option value="">All Orders</option>
+                                <option value="received">Received</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="preparing">Preparing</option>
+                                <option value="ready">Ready</option>
+                                <option value="picked">Picked</option>
+                                <option value="on_way">On the Way</option>
+                                <option value="delivered">Delivered</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="admin-table" id="ordersTable">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Area</th>
+                                    <th>Items</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${sortedOrders.map(order => `
+                                    <tr data-status="${order.status}">
+                                        <td><strong>#${order.id}</strong></td>
+                                        <td>${order.address?.label || 'Unknown'}</td>
+                                        <td>${order.address?.area || 'Unknown'}</td>
+                                        <td>${order.items.length} items</td>
+                                        <td>₦${order.total.toLocaleString()}</td>
+                                        <td>
+                                            <select class="status-select" onchange="adminPage.updateOrderStatus('${order.id}', this.value)">
+                                                <option value="received" ${order.status === 'received' ? 'selected' : ''}>Received</option>
+                                                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                                                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                                                <option value="ready" ${order.status === 'ready' ? 'selected' : ''}>Ready</option>
+                                                <option value="picked" ${order.status === 'picked' ? 'selected' : ''}>Picked</option>
+                                                <option value="on_way" ${order.status === 'on_way' ? 'selected' : ''}>On the Way</option>
+                                                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                                            </select>
+                                        </td>
+                                        <td>${this.formatDate(order.timestamp)}</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <button class="btn btn-ghost" onclick="adminPage.viewOrderDetails('${order.id}')" title="View Details">
+                                                    <i class="ri-eye-line"></i>
+                                                </button>
+                                                <button class="btn btn-ghost text-danger" onclick="adminPage.deleteOrder('${order.id}')" title="Delete">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            renderCouponsSection() {
+                const coupons = Store.get('coupons') || [];
+                
+                return `
+                    <div class="section-header">
+                        <div>
+                            <h1>Coupons Management</h1>
+                            <p>Create and manage promotional coupons</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="adminPage.showCouponModal()">
+                            <i class="ri-add-line"></i>
+                            Add Coupon
+                        </button>
+                    </div>
+
+                    <div class="coupons-grid">
+                        ${coupons.map(coupon => `
+                            <div class="coupon-card">
+                                <div class="coupon-header">
+                                    <h3>${coupon.code}</h3>
+                                    <div class="coupon-discount">${coupon.discount}% OFF</div>
+                                </div>
+                                <div class="coupon-details">
+                                    <p>${coupon.description}</p>
+                                    <div class="coupon-meta">
+                                        <span>Min: ₦${coupon.minSpend.toLocaleString()}</span>
+                                        <span>Expires: ${this.formatDate(coupon.expiry)}</span>
+                                    </div>
+                                </div>
+                                <div class="coupon-actions">
+                                    <button class="btn btn-ghost" onclick="adminPage.editCoupon('${coupon.id}')">
+                                        <i class="ri-edit-line"></i>
+                                    </button>
+                                    <button class="btn btn-ghost text-danger" onclick="adminPage.deleteCoupon('${coupon.id}')">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Coupon Modal -->
+                    <div class="modal" id="couponModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 id="couponModalTitle">Add Coupon</h3>
+                                <button class="modal-close" onclick="UI.closeModal('couponModal')">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="couponForm" class="form">
+                                    <div class="form-group">
+                                        <label for="couponCode">Coupon Code</label>
+                                        <input type="text" id="couponCode" style="text-transform: uppercase;" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="couponDescription">Description</label>
+                                        <textarea id="couponDescription" rows="2"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="couponDiscount">Discount (%)</label>
+                                            <input type="number" id="couponDiscount" min="1" max="100" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="couponMinSpend">Min Spend (₦)</label>
+                                            <input type="number" id="couponMinSpend" min="0" value="0">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="couponExpiry">Expiry Date</label>
+                                        <input type="date" id="couponExpiry" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-outline" onclick="UI.closeModal('couponModal')">Cancel</button>
+                                <button class="btn btn-primary" onclick="adminPage.saveCoupon()">Save Coupon</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            initializeCharts() {
+                // Destroy existing charts
+                Object.values(this.charts).forEach(chart => chart.destroy());
+                this.charts = {};
+
+                // Orders Chart
+                const ordersCtx = document.getElementById('ordersChart');
+                if (ordersCtx) {
+                    this.charts.orders = new Chart(ordersCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                            datasets: [{
+                                label: 'Orders',
+                                data: [12, 19, 8, 15, 22, 28, 17],
+                                borderColor: '#4B0082',
+                                backgroundColor: 'rgba(75, 0, 130, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: false }
+                            },
+                            scales: {
+                                y: { beginAtZero: true }
+                            }
+                        }
+                    });
+                }
+
+                // Revenue Chart
+                const revenueCtx = document.getElementById('revenueChart');
+                if (revenueCtx) {
+                    this.charts.revenue = new Chart(revenueCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Effurun', 'Enerhen', 'PTI Road', 'Others'],
+                            datasets: [{
+                                data: [30, 25, 20, 25],
+                                backgroundColor: [
+                                    '#4B0082',
+                                    '#5c0aa6',
+                                    '#a078d6',
+                                    '#c9c7d1'
+                                ]
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { position: 'bottom' }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Restaurant Management Methods
+            showRestaurantModal(restaurantId = null) {
+                this.editingItem = restaurantId;
+                const modal = document.getElementById('restaurantModal');
+                const title = document.getElementById('restaurantModalTitle');
+                
+                if (restaurantId) {
+                    const restaurant = Store.get('restaurants').find(r => r.id === restaurantId);
+                    if (restaurant) {
+                        title.textContent = 'Edit Restaurant';
+                        this.populateRestaurantForm(restaurant);
+                    }
+                } else {
+                    title.textContent = 'Add Restaurant';
+                    document.getElementById('restaurantForm').reset();
+                }
+                
+                UI.showModal('restaurantModal');
+            }
+
+            populateRestaurantForm(restaurant) {
+                document.getElementById('restaurantName').value = restaurant.name;
+                document.getElementById('restaurantArea').value = restaurant.area;
+                document.getElementById('restaurantDescription').value = restaurant.description || '';
+                document.getElementById('restaurantImage').value = restaurant.image || '';
+                document.getElementById('restaurantLogo').value = restaurant.logo || '';
+                document.getElementById('restaurantPhone').value = restaurant.phone || '';
+                document.getElementById('restaurantAddress').value = restaurant.address || '';
+                document.getElementById('deliveryTime').value = restaurant.deliveryTime;
+                document.getElementById('deliveryFee').value = restaurant.deliveryFee;
+                document.getElementById('restaurantCuisines').value = restaurant.cuisines.join(', ');
+            }
+
+            saveRestaurant() {
+                const form = document.getElementById('restaurantForm');
+                const formData = new FormData(form);
+                
+                const restaurant = {
+                    id: this.editingItem || Date.now().toString(),
+                    name: document.getElementById('restaurantName').value,
+                    area: document.getElementById('restaurantArea').value,
+                    description: document.getElementById('restaurantDescription').value,
+                    image: document.getElementById('restaurantImage').value || '/assets/img/restaurant-placeholder.jpg',
+                    logo: document.getElementById('restaurantLogo').value || '/assets/img/logo-placeholder.jpg',
+                    phone: document.getElementById('restaurantPhone').value,
+                    address: document.getElementById('restaurantAddress').value,
+                    deliveryTime: parseInt(document.getElementById('deliveryTime').value),
+                    deliveryFee: parseInt(document.getElementById('deliveryFee').value),
+                    cuisines: document.getElementById('restaurantCuisines').value.split(',').map(c => c.trim()),
+                    rating: this.editingItem ? Store.get('restaurants').find(r => r.id === this.editingItem).rating : 4.5,
+                    reviews: this.editingItem ? Store.get('restaurants').find(r => r.id === this.editingItem).reviews : 0,
+                    isOpen: true,
+                    priceRange: 'moderate',
+                    minOrder: 1500,
+                    hours: {
+                        mon: '09:00 - 22:00',
+                        tue: '09:00 - 22:00',
+                        wed: '09:00 - 22:00',
+                        thu: '09:00 - 22:00',
+                        fri: '09:00 - 23:00',
+                        sat: '09:00 - 23:00',
+                        sun: '10:00 - 21:00'
+                    }
+                };
+
+                // Validate required fields
+                if (!restaurant.name || !restaurant.area) {
+                    UI.showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                const restaurants = Store.get('restaurants');
+                const existingIndex = restaurants.findIndex(r => r.id === restaurant.id);
+                
+                if (existingIndex !== -1) {
+                    restaurants[existingIndex] = restaurant;
+                } else {
+                    restaurants.push(restaurant);
+                }
+                
+                Store.set('restaurants', restaurants);
+                UI.closeModal('restaurantModal');
+                UI.showToast(`Restaurant ${this.editingItem ? 'updated' : 'added'} successfully!`, 'success');
+                this.renderSection();
+            }
+
+            editRestaurant(restaurantId) {
+                this.showRestaurantModal(restaurantId);
+            }
+
+            deleteRestaurant(restaurantId) {
+                UI.showConfirm('Delete this restaurant? This will also remove all associated menu items.', () => {
+                    const restaurants = Store.get('restaurants').filter(r => r.id !== restaurantId);
+                    Store.set('restaurants', restaurants);
+                    
+                    // Also remove menu items for this restaurant
+                    const menus = Store.get('menus');
+                    delete menus[restaurantId];
+                    Store.set('menus', menus);
+                    
+                    UI.showToast('Restaurant deleted successfully!', 'success');
+                    this.renderSection();
+                });
+            }
+
+            // Menu Management Methods
+            showMenuItemModal(restaurantId = null, category = null, itemId = null) {
+                this.editingItem = itemId;
+                const modal = document.getElementById('menuItemModal');
+                const title = document.getElementById('menuItemModalTitle');
+                
+                if (itemId) {
+                    title.textContent = 'Edit Menu Item';
+                    // Populate form with existing item data
+                    // Implementation would load the item data here
+                } else {
+                    title.textContent = 'Add Menu Item';
+                    document.getElementById('menuItemForm').reset();
+                }
+                
+                UI.showModal('menuItemModal');
+            }
+
+            saveMenuItem() {
+                const restaurantId = document.getElementById('itemRestaurant').value;
+                const category = document.getElementById('itemCategory').value;
+                
+                if (!restaurantId || !category) {
+                    UI.showToast('Please select restaurant and category', 'error');
+                    return;
+                }
+
+                const menuItem = {
+                    id: this.editingItem || Date.now().toString(),
+                    name: document.getElementById('itemName').value,
+                    description: document.getElementById('itemDescription').value,
+                    price: parseInt(document.getElementById('itemPrice').value),
+                    image: document.getElementById('itemImage').value || '/assets/img/food-placeholder.jpg',
+                    dietary: document.getElementById('itemDietary').value.split(',').map(d => d.trim()).filter(d => d)
+                };
+
+                const menus = Store.get('menus');
+                if (!menus[restaurantId]) {
+                    menus[restaurantId] = {};
+                }
+                if (!menus[restaurantId][category]) {
+                    menus[restaurantId][category] = [];
+                }
+
+                const existingIndex = menus[restaurantId][category].findIndex(item => item.id === menuItem.id);
+                if (existingIndex !== -1) {
+                    menus[restaurantId][category][existingIndex] = menuItem;
+                } else {
+                    menus[restaurantId][category].push(menuItem);
+                }
+
+                Store.set('menus', menus);
+                UI.closeModal('menuItemModal');
+                UI.showToast(`Menu item ${this.editingItem ? 'updated' : 'added'} successfully!`, 'success');
+                this.renderSection();
+            }
+
+            editMenuItem(restaurantId, category, itemId) {
+                this.showMenuItemModal(restaurantId, category, itemId);
+                // Would populate form with item data here
+            }
+
+            deleteMenuItem(restaurantId, category, itemId) {
+                UI.showConfirm('Delete this menu item?', () => {
+                    const menus = Store.get('menus');
+                    if (menus[restaurantId] && menus[restaurantId][category]) {
+                        menus[restaurantId][category] = menus[restaurantId][category].filter(item => item.id !== itemId);
+                        
+                        // Remove category if empty
+                        if (menus[restaurantId][category].length === 0) {
+                            delete menus[restaurantId][category];
+                        }
+                        
+                        Store.set('menus', menus);
+                        UI.showToast('Menu item deleted successfully!', 'success');
+                        this.renderSection();
+                    }
+                });
+            }
+
+            filterMenusByRestaurant() {
+                const selectedRestaurant = document.getElementById('menuRestaurantSelect').value;
+                const restaurantElements = document.querySelectorAll('.menu-restaurant');
+                
+                restaurantElements.forEach(element => {
+                    const restaurantId = element.dataset.restaurant;
+                    if (!selectedRestaurant || restaurantId === selectedRestaurant) {
+                        element.style.display = 'block';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                });
+            }
+
+            // Order Management Methods
+            updateOrderStatus(orderId, newStatus) {
+                const orders = Store.get('orders');
+                const orderIndex = orders.findIndex(o => o.id === orderId);
+                
+                if (orderIndex !== -1) {
+                    orders[orderIndex].status = newStatus;
+                    Store.set('orders', orders);
+                    UI.showToast('Order status updated successfully!', 'success');
+                }
+            }
+
+            filterOrdersByStatus() {
+                const selectedStatus = document.getElementById('orderStatusFilter').value;
+                const orderRows = document.querySelectorAll('#ordersTable tbody tr');
+                
+                orderRows.forEach(row => {
+                    const orderStatus = row.dataset.status;
+                    if (!selectedStatus || orderStatus === selectedStatus) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            viewOrderDetails(orderId) {
+                // Would implement order details modal here
+                UI.showToast('Order details view - to be implemented', 'info');
+            }
+
+            deleteOrder(orderId) {
+                UI.showConfirm('Delete this order?', () => {
+                    const orders = Store.get('orders').filter(o => o.id !== orderId);
+                    Store.set('orders', orders);
+                    UI.showToast('Order deleted successfully!', 'success');
+                    this.renderSection();
+                });
+            }
+
+            // Coupon Management Methods
+            showCouponModal(couponId = null) {
+                this.editingItem = couponId;
+                const modal = document.getElementById('couponModal');
+                const title = document.getElementById('couponModalTitle');
+                
+                if (couponId) {
+                    const coupon = Store.get('coupons').find(c => c.id === couponId);
+                    if (coupon) {
+                        title.textContent = 'Edit Coupon';
+                        document.getElementById('couponCode').value = coupon.code;
+                        document.getElementById('couponDescription').value = coupon.description;
+                        document.getElementById('couponDiscount').value = coupon.discount;
+                        document.getElementById('couponMinSpend').value = coupon.minSpend;
+                        document.getElementById('couponExpiry').value = new Date(coupon.expiry).toISOString().split('T')[0];
+                    }
+                } else {
+                    title.textContent = 'Add Coupon';
+                    document.getElementById('couponForm').reset();
+                }
+                
+                UI.showModal('couponModal');
+            }
+
+            saveCoupon() {
+                const coupon = {
+                    id: this.editingItem || Date.now().toString(),
+                    code: document.getElementById('couponCode').value.toUpperCase(),
+                    description: document.getElementById('couponDescription').value,
+                    discount: parseInt(document.getElementById('couponDiscount').value),
+                    minSpend: parseInt(document.getElementById('couponMinSpend').value),
+                    expiry: new Date(document.getElementById('couponExpiry').value).toISOString()
+                };
+
+                const coupons = Store.get('coupons');
+                const existingIndex = coupons.findIndex(c => c.id === coupon.id);
+                
+                if (existingIndex !== -1) {
+                    coupons[existingIndex] = coupon;
+                } else {
+                    coupons.push(coupon);
+                }
+                
+                Store.set('coupons', coupons);
+                UI.closeModal('couponModal');
+                UI.showToast(`Coupon ${this.editingItem ? 'updated' : 'added'} successfully!`, 'success');
+                this.renderSection();
+            }
+
+            editCoupon(couponId) {
+                this.showCouponModal(couponId);
+            }
+
+            deleteCoupon(couponId) {
+                UI.showConfirm('Delete this coupon?', () => {
+                    const coupons = Store.get('coupons').filter(c => c.id !== couponId);
+                    Store.set('coupons', coupons);
+                    UI.showToast('Coupon deleted successfully!', 'success');
+                    this.renderSection();
+                });
+            }
+
+            // Utility Methods
+            getStatusText(status) {
+                const texts = {
+                    received: 'Received',
+                    confirmed: 'Confirmed',
+                    preparing: 'Preparing',
+                    ready: 'Ready',
+                    picked: 'Picked Up',
+                    on_way: 'On the Way',
+                    delivered: 'Delivered'
+                };
+                return texts[status] || 'Unknown';
+            }
+
+            formatDate(timestamp) {
+                const date = new Date(timestamp);
+                return date.toLocaleString('en-NG', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // Initialize when DOM is loaded
+        let adminPage;
+        document.addEventListener('DOMContentLoaded', function() {
+            adminPage = new AdminPage();
+        });
+    </script>
+</body>
+</html>
